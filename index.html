@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Calculadora de Gestión Energética v10.0</title>
+    
+    <link rel="icon" href="favicon.png" type="image/png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --elec-color: #1a73e8;
+            --gas-color: #2e7d32;
+            --diesel-color: #d97706;
+            --active-nav: #e2e8f0;
+            --active-nav-text: #0f172a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+
+        .container { max-width: 100%; margin: 0 auto; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 12px;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: #ffffff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .header-title-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .app-logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        h1 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 700; }
+        p.subtitle { margin: 2px 0 0; color: var(--text-sub); font-size: 12px; }
+
+        .header-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .btn {
+            background-color: #1a73e8;
+            color: #fff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.2s;
+        }
+        .btn:hover { background-color: #1557b0; }
+        .btn-secondary { background-color: #64748b; }
+        .btn-secondary:hover { background-color: #475569; }
+        .btn-success { background-color: #16a34a; }
+        .btn-success:hover { background-color: #15803d; }
+        .btn-add { background-color: #2563eb; color: #ffffff; font-weight: bold; }
+        .btn-add:hover { background-color: #1d4ed8; }
+
+        .meta-inputs { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-sub);
+        }
+
+        .meta-field {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .meta-inputs input[type="text"] {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: var(--text-main);
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .meta-inputs input[type="text"]::placeholder {
+            color: #94a3b8;
+        }
+
+        .app-layout {
+            display: grid;
+            grid-template-columns: 160px minmax(0, 1fr);
+            gap: 15px;
+            align-items: start;
+        }
+
+        @media (max-width: 900px) {
+            .app-layout { grid-template-columns: 1fr; }
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #ffffff;
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            color: var(--text-sub);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .nav-item:hover { background-color: #f1f5f9; color: var(--text-main); }
+        .nav-item.active {
+            background-color: var(--active-nav);
+            color: var(--active-nav-text);
+            font-weight: 700;
+        }
+        .nav-item .icon { font-size: 15px; }
+
+        .main-content { min-height: 500px; min-width: 0; }
+        .tab-pane { display: none; }
+        .tab-pane.active-pane { display: block; }
+
+        .section-header-inside {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .section-title-text {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title-text::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--elec-color);
+            display: inline-block;
+            border-radius: 2px;
+        }
+
+        .factors-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+        }
+
+        .factor-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .factor-title { font-size: 12px; font-weight: 600; }
+
+        .btn-delete-fuel {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .welcome-card {
+            background: #ffffff;
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .welcome-card h2 { margin-top: 0; font-size: 20px; color: #1e293b; }
+        .welcome-card p { font-size: 13px; color: var(--text-sub); max-width: 600px; margin: 8px auto; line-height: 1.5; }
+
+        .img-explicativa-container {
+            margin: 15px auto;
+            max-width: 100%;
+            text-align: center;
+        }
+
+        .img-explicativa-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid var(--card-border);
+        }
+
+        .analysis-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-top: 12px;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #1e3a8a;
+        }
+
+        .table-container { 
+            width: 100%;
+            overflow-x: auto; 
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 11px; 
+            table-layout: auto;
+        }
+        th, td { 
+            padding: 6px 3px; 
+            text-align: center; 
+            border-bottom: 1px solid var(--card-border); 
+            white-space: nowrap;
+        }
+        th { 
+            background: #f8fafc; 
+            color: var(--text-sub); 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            font-size: 10px; 
+        }
+        tr:hover { background-color: #f8fafc; }
+
+        td.param-name { 
+            text-align: left; 
+            font-weight: 600; 
+            padding-left: 8px; 
+            min-width: 150px;
+            max-width: 180px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .col-total-anual {
+            background-color: #f8fafc;
+            font-weight: bold;
+            border-left: 2px solid var(--card-border);
+        }
+
+        input[type="number"], input[type="text"].input-table, select.select-table {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: var(--text-main);
+            padding: 4px 2px;
+            border-radius: 4px;
+            font-size: 11px;
+            box-sizing: border-box;
+        }
+
+        input[type="number"] { text-align: right; width: 58px; }
+        select.select-table { width: 100%; }
+
+        .badge-priority {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 10px;
+            display: inline-block;
+        }
+        .priority-alta { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+        .priority-media { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+        .priority-baja { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .priority-na { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .kpi-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .kpi-value { font-size: 18px; font-weight: bold; margin-top: 4px; color: var(--text-main); }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+
+        .row-total { background: #f8fafc; font-weight: bold; color: var(--text-main); }
+
+        .print-index-card { display: none; }
+
+        @media print {
+            @page { size: A4 landscape; margin: 8mm; }
+            body { background-color: #ffffff !important; color: #000000 !important; padding: 0 !important; }
+            .header-controls, .btn-add, .btn-delete-fuel, .sidebar-menu { display: none !important; }
+
+            .print-index-card {
+                display: block !important;
+                background: #f8f9fa !important;
+                border: 1px solid #ccc !important;
+                border-radius: 8px !important;
+                padding: 12px 20px !important;
+                margin-bottom: 15px !important;
+                color: #000 !important;
+            }
+
+            .print-index-card h3 {
+                margin: 0 0 8px 0 !important;
+                font-size: 14px !important;
+                color: #000 !important;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 4px;
+            }
+
+            .print-index-card ul {
+                margin: 0 !important;
+                padding-left: 20px !important;
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 4px 15px !important;
+                font-size: 11px !important;
+            }
+
+            .app-layout, .tab-pane { display: block !important; }
+            .section-header-inside { display: block !important; margin-bottom: 10px !important; }
+            .section-title-text { color: #000000 !important; font-size: 15px !important; font-weight: bold !important; }
+            .card, .factor-card, .kpi-card, .analysis-box { background: #ffffff !important; border: 1px solid #ccc !important; color: #000000 !important; box-shadow: none !important; }
+            th { background-color: #f0f0f0 !important; color: #000000 !important; }
+            td { border-bottom: 1px solid #ddd !important; color: #000000 !important; }
+            input, select { border: none !important; background: transparent !important; color: #000000 !important; appearance: none; -webkit-appearance: none; }
+
+            #paneWelcome { display: none !important; }
+            #paneFactores, #paneBoletas, #paneConsolidado, #paneAnalisis { page-break-after: always !important; break-after: page !important; }
+
+            .charts-grid { display: grid !important; grid-template-columns: 1.8fr 1.2fr !important; gap: 15px !important; align-items: center !important; page-break-inside: avoid !important; }
+            .charts-grid > .card { margin-bottom: 0 !important; padding: 10px !important; }
+            .pie-card-container { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; width: 100% !important; }
+            .pie-card-container canvas { max-width: 260px !important; max-height: 260px !important; aspect-ratio: 1 / 1 !important; }
+            .kpi-grid { page-break-inside: avoid !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="header-title-container">
+            <img src="logo.png" alt="Logo Gestión Energética" class="app-logo" onerror="this.style.display='none'">
+            <div>
+                <h1>Calculadora de Gestión Energética</h1>
+                <p class="subtitle">Registros de consumo y evaluación MAE</p>
+            </div>
+        </div>
+
+        <div class="header-controls">
+            <!-- BOTONES SUPERIORES SIMPLIFICADOS -->
+            <div class="btn-group">
+                <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;" onchange="cargarArchivo(event)">
+                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">📂 Cargar</button>
+                <button class="btn btn-success" onclick="exportarExcel()">💾 Guardar</button>
+                <button class="btn" onclick="imprimirPDF()">🖨️ Imprimir</button>
+            </div>
+
+            <!-- CAMPOS CON ETIQUETAS EXTERNAS -->
+            <div class="meta-inputs">
+                <div class="meta-field">
+                    <span>Archivo:</span>
+                    <input type="text" id="nombreEdificio" placeholder="Nombre Edificación / Muni." style="width: 180px;">
+                </div>
+                <div class="meta-field">
+                    <span>Año:</span>
+                    <input type="text" id="anioRegistro" placeholder="2026" style="width: 60px;">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <nav class="sidebar-menu">
+            <button class="nav-item active" onclick="switchTab('paneWelcome', this)">
+                <span class="icon">🏠</span> Inicio
+            </button>
+            <button class="nav-item" onclick="switchTab('paneFactores', this)">
+                <span class="icon">⚡</span> Factores
+            </button>
+            <button class="nav-item" onclick="switchTab('paneBoletas', this)">
+                <span class="icon">📄</span> Ingresos
+            </button>
+            <button class="nav-item" onclick="switchTab('paneConsolidado', this)">
+                <span class="icon">📊</span> Consolidado
+            </button>
+            <button class="nav-item" onclick="switchTab('paneAnalisis', this)">
+                <span class="icon">📈</span> Análisis
+            </button>
+            <button class="nav-item" onclick="switchTab('paneMae', this)">
+                <span class="icon">💼</span> MAE
+            </button>
+        </nav>
+
+        <main class="main-content">
+            <!-- PESTAÑA: BIENVENIDA -->
+            <div id="paneWelcome" class="tab-pane active-pane">
+                <div class="welcome-card">
+                    <h2>Bienvenido a la Calculadora de Gestión Energética</h2>
+                    <p>Seleccione un módulo del menú lateral para gestionar los registros energéticos de su infraestructura.</p>
+
+                    <!-- CONTENEDOR PARA IMAGEN EXPLICATIVA -->
+                    <div class="img-explicativa-container">
+                        <img src="explicacion.png" alt="Instrucciones del programa" onerror="this.style.display='none'">
+                    </div>
+
+                    <p style="font-size: 12px; color: var(--text-sub);">
+                        Puede cargar una planilla preexistente con <strong>📂 Cargar</strong>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- PESTAÑA: FACTORES DE CONVERSIÓN -->
+            <div id="paneFactores" class="tab-pane">
+                <div class="print-index-card">
+                    <h3>📋 ÍNDICE DEL INFORME ENERGÉTICO</h3>
+                    <ul>
+                        <li><strong>Página 1:</strong> Factores de Conversión de Energía</li>
+                        <li><strong>Página 2:</strong> Ingreso de Boletas / Facturas Reales</li>
+                        <li><strong>Página 3:</strong> Consolidado de Energía Equivalente y Costos</li>
+                        <li><strong>Página 4:</strong> Análisis Energético y Métricas Clave</li>
+                        <li><strong>Página 5:</strong> Evaluación Financiera y Priorización MAE</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="section-header-inside">
+                        <div class="section-title-text">Factores de Conversión de Energía</div>
+                        <button class="btn btn-add" onclick="agregarNuevoCombustible()">➕ Agregar Combustible</button>
+                    </div>
+                    <div class="factors-row" id="factorsContainer"></div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA: INGRESO DE BOLETAS -->
+            <div id="paneBoletas" class="tab-pane">
+                <div class="card">
+                    <div class="section-header-inside">
+                        <div class="section-title-text">Ingreso de Boletas / Facturas Reales</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead id="inputHead"></thead>
+                            <tbody id="inputBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA: CONSOLIDADO DE ENERGÍA -->
+            <div id="paneConsolidado" class="tab-pane">
+                <div class="card">
+                    <div class="section-header-inside">
+                        <div class="section-title-text">Consolidado de Energía Equivalente y Costos</div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead id="resultHead"></thead>
+                            <tbody id="resultBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA: ANÁLISIS ENERGÉTICO Y GRÁFICOS -->
+            <div id="paneAnalisis" class="tab-pane">
+                <div class="section-header-inside">
+                    <div class="section-title-text">Análisis Energético y Métricas Clave</div>
+                </div>
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card" style="border-bottom: 4px solid #1a73e8;">
+                        <div class="kpi-label">Gasto Total de Energía Anual</div>
+                        <div class="kpi-value" id="kpiCostoTotal">$0</div>
+                    </div>
+                    <div class="kpi-card" style="border-bottom: 4px solid #2e7d32;">
+                        <div class="kpi-label">Consumo Energético Total Anual</div>
+                        <div class="kpi-value" id="kpiEqTotal">0 <span style="font-size: 11px; font-weight: normal;">kWh-eq</span></div>
+                    </div>
+                    <div class="kpi-card" style="border-bottom: 4px solid #dc2626;">
+                        <div class="kpi-label">Emisiones CO₂e Estimadas</div>
+                        <div class="kpi-value" id="kpiCo2Total" style="color:#dc2626;">0 <span style="font-size: 11px; font-weight: normal;">kg-CO₂e</span></div>
+                    </div>
+                    <div class="kpi-card" style="border-bottom: 4px solid #d97706;">
+                        <div class="kpi-label">Gasto Promedio Mensual</div>
+                        <div class="kpi-value" id="kpiCostoProm">$0</div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="card">
+                        <h3 style="margin-top: 0; font-size: 13px; color: var(--text-sub);">Consumo Energético Mensual Comparativo (kWh-eq)</h3>
+                        <canvas id="barChart" height="110"></canvas>
+                        
+                        <div class="analysis-box" id="analysisText">
+                            💡 <em>Ingrese consumos para generar el diagnóstico automático.</em>
+                        </div>
+                    </div>
+                    
+                    <div class="card pie-card-container">
+                        <h3 style="margin-top: 0; font-size: 13px; color: var(--text-sub);">Distribución de Costo por Fuente</h3>
+                        <canvas id="pieChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA: EVALUACIÓN MAE -->
+            <div id="paneMae" class="tab-pane">
+                <div class="card">
+                    <div class="section-header-inside">
+                        <div class="section-title-text">Evaluación Financiera y Priorización de Medidas de Ahorro de Energía (MAE)</div>
+                        <button class="btn btn-add" onclick="agregarFilaMae()">➕ Agregar Fila MAE</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width: 75px;">Código</th>
+                                    <th style="text-align: left;">Descripción de la Medida de Ahorro</th>
+                                    <th style="width: 160px;">Subsistema Afectado</th>
+                                    <th style="width: 140px;">Tipo de Medida</th>
+                                    <th style="width: 120px;">CAPEX ($)</th>
+                                    <th style="width: 120px;">Ahorro OPEX ($/año)</th>
+                                    <th style="width: 90px;">TSR (Años)</th>
+                                    <th style="width: 100px;">Prioridad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="maeBody"></tbody>
+                            <tfoot>
+                                <tr class="row-total">
+                                    <td colspan="4" style="text-align: right; padding-right: 15px;">TOTAL MAE:</td>
+                                    <td id="totalCapexMae" style="color: #1a73e8;">$0</td>
+                                    <td id="totalOpexMae" style="color: #16a34a;">$0</td>
+                                    <td colspan="2"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="kpi-grid">
+                    <div class="kpi-card" style="border-bottom: 4px solid #1a73e8;">
+                        <div class="kpi-label">Inversión Inicial Total (CAPEX)</div>
+                        <div class="kpi-value" id="kpiCapexTotalMae" style="color:#1a73e8;">$0</div>
+                    </div>
+                    <div class="kpi-card" style="border-bottom: 4px solid #16a34a;">
+                        <div class="kpi-label">Ahorro Anual Estimado ($/año)</div>
+                        <div class="kpi-value" id="kpiOpexTotalMae" style="color:#16a34a;">$0</div>
+                    </div>
+                    <div class="kpi-card" style="border-bottom: 4px solid #9333ea;">
+                        <div class="kpi-label">TSR Promedio Ponderado</div>
+                        <div class="kpi-value" id="kpiTsrPonderadoMae" style="color:#9333ea;">0.0 <span style="font-size: 11px; font-weight: normal;">años</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script>
+    const meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const mesesCompletos = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const coloresDisponibles = ['#1a73e8', '#2e7d32', '#d97706', '#dc2626', '#9333ea', '#0284c7', '#ea580c', '#65a30d', '#c026d3'];
+
+    let fuentesEnergia = [
+        { id: 'elec', nombre: 'Electricidad', unidad: 'kWh', factor: 1.0, color: '#1a73e8', fija: true },
+        { id: 'gas', nombre: 'Gas Licuado (GLP)', unidad: 'kg', factor: 12.8, color: '#2e7d32', fija: true },
+        { id: 'diesel', nombre: 'Petróleo Diésel', unidad: 'L', factor: 10.0, color: '#d97706', fija: true }
+    ];
+
+    let totalFilasMae = 1;
+    let barChartInstance = null, pieChartInstance = null;
+
+    function switchTab(paneId, btnEl) {
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active-pane'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+        document.getElementById(paneId).classList.add('active-pane');
+        if (btnEl) btnEl.classList.add('active');
+    }
+
+    function limpiarTexto(str) {
+        if (!str) return "";
+        let text = String(str);
+        try { text = decodeURIComponent(escape(text)); } catch(e) {}
+        return text.trim();
+    }
+
+    function normalizarId(nombre) {
+        let limpio = limpiarTexto(nombre).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        if (limpio.includes("elec")) return "elec";
+        if (limpio.includes("gas")) return "gas";
+        if (limpio.includes("diesel")) return "diesel";
+        return 'fuel_' + limpio.replace(/[^a-z0-9]/g, '');
+    }
+
+    function respaldarEstadoActual() {
+        let estado = [];
+        for (let i = 0; i < 12; i++) {
+            let mesObj = {};
+            fuentesEnergia.forEach(f => {
+                mesObj[`${f.id}_val`] = document.getElementById(`${f.id}_val_${i}`)?.value || "";
+                mesObj[`${f.id}_cost`] = document.getElementById(`${f.id}_cost_${i}`)?.value || "";
+            });
+            estado.push(mesObj);
+        }
+        return estado;
+    }
+
+    function restaurarEstado(estado) {
+        if (!estado || estado.length === 0) return;
+        for (let i = 0; i < 12; i++) {
+            const mesObj = estado[i];
+            fuentesEnergia.forEach(f => {
+                const valEl = document.getElementById(`${f.id}_val_${i}`);
+                const costEl = document.getElementById(`${f.id}_cost_${i}`);
+                if (valEl && mesObj[`${f.id}_val`] !== undefined) valEl.value = mesObj[`${f.id}_val`];
+                if (costEl && mesObj[`${f.id}_cost`] !== undefined) costEl.value = mesObj[`${f.id}_cost`];
+            });
+        }
+    }
+
+    function renderFactores() {
+        const container = document.getElementById("factorsContainer");
+        container.innerHTML = "";
+        fuentesEnergia.forEach((f, idx) => {
+            const card = document.createElement("div");
+            card.className = "factor-card";
+            card.style.borderLeft = `4px solid ${f.color}`;
+            
+            let html = `
+                <div>
+                    <div class="factor-title" style="color:${f.color}">${f.nombre}</div>
+                    <div style="font-size:10px; color:var(--text-sub)">Unidad: ${f.unidad}</div>
+                </div>
+                <div style="text-align:right">
+                    <input type="number" step="0.1" value="${f.factor}" style="width:55px; font-weight:bold;" onchange="actualizarFactor(${idx}, this.value)">
+                    <div style="font-size:9px; color:var(--text-sub)">kWh-eq / ${f.unidad}</div>
+                </div>
+            `;
+            if (!f.fija) {
+                html += `<button class="btn-delete-fuel" title="Eliminar fuente" onclick="eliminarCombustible(${idx})">✕</button>`;
+            }
+            card.innerHTML = html;
+            container.appendChild(card);
+        });
+    }
+
+    function actualizarFactor(idx, val) {
+        fuentesEnergia[idx].factor = parseFloat(val) || 0;
+        update();
+    }
+
+    function agregarNuevoCombustible(nombreInput, unidadInput, factorInput) {
+        const nombreRaw = nombreInput || prompt("Nombre del nuevo combustible (ej. Biomasa, Pellet, Kerosene):", "Pellet");
+        if (!nombreRaw) return null;
+        const nombre = limpiarTexto(nombreRaw);
+        const unidad = unidadInput || prompt(`Unidad de medida para ${nombre} (ej. kg, L, m³):`, "kg");
+        if (!unidad) return null;
+        const factorStr = factorInput || prompt(`Factor de conversión (kWh-eq por cada ${unidad}):`, "4.8");
+        const factor = parseFloat(factorStr) || 1.0;
+
+        const id = normalizarId(nombre);
+
+        const existe = fuentesEnergia.find(f => f.id === id || normalizarId(f.nombre) === id);
+        if (existe) {
+            existe.factor = factor;
+            return existe;
+        }
+
+        const estadoPrevio = respaldarEstadoActual();
+        const maePrevio = respaldarMae();
+        
+        const color = coloresDisponibles[fuentesEnergia.length % coloresDisponibles.length];
+        const nuevaFuente = { id, nombre, unidad, factor, color, fija: false };
+        fuentesEnergia.push(nuevaFuente);
+        
+        renderTodo();
+        restaurarEstado(estadoPrevio);
+        restaurarMae(maePrevio);
+        update();
+        return nuevaFuente;
+    }
+
+    function eliminarCombustible(idx) {
+        if (confirm(`¿Eliminar la fuente ${fuentesEnergia[idx].nombre}?`)) {
+            const estadoPrevio = respaldarEstadoActual();
+            const maePrevio = respaldarMae();
+            
+            fuentesEnergia.splice(idx, 1);
+            
+            renderTodo();
+            restaurarEstado(estadoPrevio);
+            restaurarMae(maePrevio);
+            update();
+        }
+    }
+
+    function respaldarMae() {
+        let maeData = [];
+        for (let i = 1; i <= totalFilasMae; i++) {
+            maeData.push({
+                desc: document.getElementById(`mae_desc_${i}`)?.value || "",
+                sub: document.getElementById(`mae_sub_${i}`)?.value || "",
+                tipo: document.getElementById(`mae_tipo_${i}`)?.value || "",
+                capex: document.getElementById(`mae_capex_${i}`)?.value || "",
+                opex: document.getElementById(`mae_opex_${i}`)?.value || ""
+            });
+        }
+        return maeData;
+    }
+
+    function restaurarMae(maeData) {
+        if (!maeData) return;
+        maeData.forEach((item, index) => {
+            const i = index + 1;
+            if (document.getElementById(`mae_desc_${i}`)) document.getElementById(`mae_desc_${i}`).value = item.desc;
+            if (document.getElementById(`mae_sub_${i}`)) document.getElementById(`mae_sub_${i}`).value = item.sub;
+            if (document.getElementById(`mae_tipo_${i}`)) document.getElementById(`mae_tipo_${i}`).value = item.tipo;
+            if (document.getElementById(`mae_capex_${i}`)) document.getElementById(`mae_capex_${i}`).value = item.capex;
+            if (document.getElementById(`mae_opex_${i}`)) document.getElementById(`mae_opex_${i}`).value = item.opex;
+            
+            calcularMae(i);
+        });
+    }
+
+    function renderTablaMae() {
+        const tbody = document.getElementById("maeBody");
+        tbody.innerHTML = "";
+
+        for (let i = 1; i <= totalFilasMae; i++) {
+            const codeStr = `MAE-${i < 10 ? '0' + i : i}`;
+            const tr = document.createElement("tr");
+
+            tr.innerHTML = `
+                <td><strong>${codeStr}</strong></td>
+                <td><input type="text" class="input-table" id="mae_desc_${i}" placeholder="[Ingresa medida]" style="width:100%; text-align:left;"></td>
+                <td>
+                    <select class="select-table" id="mae_sub_${i}">
+                        <option value="">[Seleccionar]</option>
+                        <option value="Iluminación">Iluminación</option>
+                        <option value="Climatización (HVAC)">Climatización (HVAC)</option>
+                        <option value="Fuerza Motriz">Fuerza Motriz</option>
+                        <option value="Envolvente Térmica">Envolvente Térmica</option>
+                        <option value="Equipos de Oficina">Equipos de Oficina</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="select-table" id="mae_tipo_${i}">
+                        <option value="">[Seleccionar]</option>
+                        <option value="Pasiva">Pasiva</option>
+                        <option value="Activa">Activa</option>
+                        <option value="Operacional / Gestión">Operacional / Gestión</option>
+                    </select>
+                </td>
+                <td><input type="number" id="mae_capex_${i}" placeholder="0" style="width:100%;" oninput="calcularMae(${i})"></td>
+                <td><input type="number" id="mae_opex_${i}" placeholder="0" style="width:100%;" oninput="calcularMae(${i})"></td>
+                <td id="mae_tsr_${i}" style="font-weight:bold;">0.0</td>
+                <td><span id="mae_prio_${i}" class="badge-priority priority-na">N/A</span></td>
+            `;
+            tbody.appendChild(tr);
+        }
+    }
+
+    function agregarFilaMae() {
+        const maeDataPrev = respaldarMae();
+        totalFilasMae++;
+        renderTablaMae();
+        restaurarMae(maeDataPrev);
+        calcularTodasLasMae();
+    }
+
+    function calcularMae(i) {
+        const capex = parseFloat(document.getElementById(`mae_capex_${i}`)?.value) || 0;
+        const opex = parseFloat(document.getElementById(`mae_opex_${i}`)?.value) || 0;
+
+        let tsr = 0;
+        if (opex > 0 && capex >= 0) tsr = capex / opex;
+
+        const tsrCell = document.getElementById(`mae_tsr_${i}`);
+        const prioBadge = document.getElementById(`mae_prio_${i}`);
+
+        if (tsrCell) tsrCell.innerText = tsr > 0 ? tsr.toFixed(1) : "0.0";
+
+        if (prioBadge) {
+            if (tsr === 0) {
+                prioBadge.innerText = "N/A";
+                prioBadge.className = "badge-priority priority-na";
+            } else if (tsr <= 3) {
+                prioBadge.innerText = "Alta";
+                prioBadge.className = "badge-priority priority-alta";
+            } else if (tsr <= 7) {
+                prioBadge.innerText = "Media";
+                prioBadge.className = "badge-priority priority-media";
+            } else {
+                prioBadge.innerText = "Baja";
+                prioBadge.className = "badge-priority priority-baja";
+            }
+        }
+        calcularTotalesMae();
+    }
+
+    function calcularTodasLasMae() {
+        for (let i = 1; i <= totalFilasMae; i++) calcularMae(i);
+    }
+
+    function calcularTotalesMae() {
+        let totalCapex = 0;
+        let totalOpex = 0;
+
+        for (let i = 1; i <= totalFilasMae; i++) {
+            totalCapex += parseFloat(document.getElementById(`mae_capex_${i}`)?.value) || 0;
+            totalOpex += parseFloat(document.getElementById(`mae_opex_${i}`)?.value) || 0;
+        }
+
+        let tsrPonderado = 0;
+        if (totalOpex > 0 && totalCapex >= 0) tsrPonderado = totalCapex / totalOpex;
+
+        document.getElementById("totalCapexMae").innerText = "$" + Math.round(totalCapex).toLocaleString();
+        document.getElementById("totalOpexMae").innerText = "$" + Math.round(totalOpex).toLocaleString();
+
+        document.getElementById("kpiCapexTotalMae").innerText = "$" + Math.round(totalCapex).toLocaleString();
+        document.getElementById("kpiOpexTotalMae").innerText = "$" + Math.round(totalOpex).toLocaleString();
+        document.getElementById("kpiTsrPonderadoMae").innerHTML = (tsrPonderado > 0 ? tsrPonderado.toFixed(1) : "0.0") + ' <span style="font-size: 11px; font-weight: normal;">años</span>';
+    }
+
+    function renderEstructuraTablas() {
+        let inHeadHtml = `<tr><th style="text-align: left; padding-left: 8px;">VARIABLE / ENERGÍA</th>`;
+        meses.forEach(m => { inHeadHtml += `<th>${m}</th>`; });
+        inHeadHtml += `</tr>`;
+        document.getElementById("inputHead").innerHTML = inHeadHtml;
+
+        let resHeadHtml = `<tr><th style="text-align: left; padding-left: 8px;">VARIABLE / ENERGÍA</th>`;
+        meses.forEach(m => { resHeadHtml += `<th>${m}</th>`; });
+        resHeadHtml += `<th class="col-total-anual">TOTAL ANUAL</th></tr>`;
+        document.getElementById("resultHead").innerHTML = resHeadHtml;
+
+        const inputBody = document.getElementById("inputBody");
+        const resultBody = document.getElementById("resultBody");
+        inputBody.innerHTML = "";
+        resultBody.innerHTML = "";
+
+        fuentesEnergia.forEach(f => {
+            let trVal = document.createElement("tr");
+            let htmlVal = `<td class="param-name" style="color:${f.color}">${f.nombre} (${f.unidad})</td>`;
+            for (let i = 0; i < 12; i++) {
+                htmlVal += `<td><input type="number" id="${f.id}_val_${i}" placeholder="0" oninput="update()"></td>`;
+            }
+            trVal.innerHTML = htmlVal;
+            inputBody.appendChild(trVal);
+
+            let trCost = document.createElement("tr");
+            let htmlCost = `<td class="param-name" style="color:${f.color}">Costo ${f.nombre} ($)</td>`;
+            for (let i = 0; i < 12; i++) {
+                htmlCost += `<td><input type="number" id="${f.id}_cost_${i}" placeholder="0" oninput="update()"></td>`;
+            }
+            trCost.innerHTML = htmlCost;
+            inputBody.appendChild(trCost);
+        });
+
+        fuentesEnergia.forEach(f => {
+            let trEq = document.createElement("tr");
+            let htmlEq = `<td class="param-name" style="color:${f.color}">Energía ${f.nombre} (kWh-eq)</td>`;
+            for (let i = 0; i < 12; i++) {
+                htmlEq += `<td id="resEq_${f.id}_${i}">0</td>`;
+            }
+            htmlEq += `<td id="resEqAnual_${f.id}" class="col-total-anual" style="color:${f.color}">0 kWh-eq</td>`;
+            trEq.innerHTML = htmlEq;
+            resultBody.appendChild(trEq);
+        });
+
+        let trTotalEq = document.createElement("tr");
+        trTotalEq.style.fontWeight = "bold";
+        let htmlTotalEq = `<td class="param-name" style="color:var(--text-main)">Energía Total (kWh-eq)</td>`;
+        for (let i = 0; i < 12; i++) htmlTotalEq += `<td id="resEqTotal_${i}">0</td>`;
+        htmlTotalEq += `<td id="resEqTotalAnual" class="col-total-anual" style="color:var(--text-main)">0 kWh-eq</td>`;
+        trTotalEq.innerHTML = htmlTotalEq;
+        resultBody.appendChild(trTotalEq);
+
+        let trTotalCost = document.createElement("tr");
+        trTotalCost.style.fontWeight = "bold";
+        let htmlTotalCost = `<td class="param-name" style="color:#16a34a">Costo Total ($)</td>`;
+        for (let i = 0; i < 12; i++) htmlTotalCost += `<td id="resCostoTotal_${i}">$0</td>`;
+        htmlTotalCost += `<td id="resCostoTotalAnual" class="col-total-anual" style="color:#16a34a">$0</td>`;
+        trTotalCost.innerHTML = htmlTotalCost;
+        resultBody.appendChild(trTotalCost);
+
+        renderTablaMae();
+    }
+
+    function update() {
+        let totalesEqPorFuente = fuentesEnergia.map(() => 0);
+        let totalesCostoPorFuente = fuentesEnergia.map(() => 0);
+        let matrizEqPorMes = fuentesEnergia.map(() => []);
+        let consumoTotalPorMes = [];
+
+        let sumEqTotalGeneral = 0, sumCostoTotalGeneral = 0;
+
+        for (let i = 0; i < 12; i++) {
+            let eqMesTotal = 0, costoMesTotal = 0;
+
+            fuentesEnergia.forEach((f, fIdx) => {
+                const valInput = parseFloat(document.getElementById(`${f.id}_val_${i}`)?.value) || 0;
+                const costInput = parseFloat(document.getElementById(`${f.id}_cost_${i}`)?.value) || 0;
+
+                const eqVal = valInput * f.factor;
+                if(document.getElementById(`resEq_${f.id}_${i}`)) {
+                    document.getElementById(`resEq_${f.id}_${i}`).innerText = Math.round(eqVal).toLocaleString();
+                }
+
+                totalesEqPorFuente[fIdx] += eqVal;
+                totalesCostoPorFuente[fIdx] += costInput;
+                matrizEqPorMes[fIdx].push(eqVal);
+
+                eqMesTotal += eqVal;
+                costoMesTotal += costInput;
+            });
+
+            if(document.getElementById(`resEqTotal_${i}`)) document.getElementById(`resEqTotal_${i}`).innerText = Math.round(eqMesTotal).toLocaleString();
+            if(document.getElementById(`resCostoTotal_${i}`)) document.getElementById(`resCostoTotal_${i}`).innerText = "$" + Math.round(costoMesTotal).toLocaleString();
+
+            consumoTotalPorMes.push({ mes: mesesCompletos[i], eq: eqMesTotal });
+            sumEqTotalGeneral += eqMesTotal;
+            sumCostoTotalGeneral += costoMesTotal;
+        }
+
+        fuentesEnergia.forEach((f, idx) => {
+            const elAnual = document.getElementById(`resEqAnual_${f.id}`);
+            if (elAnual) elAnual.innerText = Math.round(totalesEqPorFuente[idx]).toLocaleString() + " kWh-eq";
+        });
+
+        if (document.getElementById("resEqTotalAnual")) {
+            document.getElementById("resEqTotalAnual").innerText = Math.round(sumEqTotalGeneral).toLocaleString() + " kWh-eq";
+        }
+        if (document.getElementById("resCostoTotalAnual")) {
+            document.getElementById("resCostoTotalAnual").innerText = "$" + Math.round(sumCostoTotalGeneral).toLocaleString();
+        }
+
+        const co2Estimado = sumEqTotalGeneral * 0.38;
+
+        document.getElementById("kpiCostoTotal").innerText = "$" + Math.round(sumCostoTotalGeneral).toLocaleString();
+        document.getElementById("kpiEqTotal").innerHTML = Math.round(sumEqTotalGeneral).toLocaleString() + ' <span style="font-size: 11px; font-weight: normal;">kWh-eq</span>';
+        document.getElementById("kpiCo2Total").innerHTML = Math.round(co2Estimado).toLocaleString() + ' <span style="font-size: 11px; font-weight: normal;">kg-CO₂e</span>';
+        document.getElementById("kpiCostoProm").innerText = "$" + Math.round(sumCostoTotalGeneral / 12).toLocaleString();
+
+        generarDiagnosticoTexto(consumoTotalPorMes, totalesEqPorFuente, sumEqTotalGeneral, co2Estimado);
+        updateCharts(matrizEqPorMes, totalesCostoPorFuente);
+        calcularTotalesMae();
+    }
+
+    function generarDiagnosticoTexto(consumoTotalPorMes, totalesEqPorFuente, sumEqTotalGeneral, co2Estimado) {
+        if (sumEqTotalGeneral === 0) {
+            document.getElementById("analysisText").innerHTML = "💡 <em>Ingrese consumos para generar el diagnóstico automático.</em>";
+            return;
+        }
+
+        let ordenados = [...consumoTotalPorMes].sort((a, b) => b.eq - a.eq);
+        let top3 = ordenados.slice(0, 3).map(m => m.mes);
+
+        let maxFuenteIdx = 0, maxFuenteEq = 0;
+        totalesEqPorFuente.forEach((val, i) => {
+            if (val > maxFuenteEq) {
+                maxFuenteEq = val;
+                maxFuenteIdx = i;
+            }
+        });
+
+        let nombreMayorFuente = fuentesEnergia[maxFuenteIdx] ? fuentesEnergia[maxFuenteIdx].nombre : "N/A";
+        let pctMayorFuente = sumEqTotalGeneral > 0 ? ((maxFuenteEq / sumEqTotalGeneral) * 100).toFixed(1) : 0;
+
+        document.getElementById("analysisText").innerHTML = `
+            📌 <strong>Diagnóstico de Consumo y Emisiones:</strong><br>
+            • Los tres meses de mayor consumo fueron <strong>${top3[0]}</strong>, <strong>${top3[1]}</strong> y <strong>${top3[2]}</strong>.<br>
+            • La fuente de mayor demanda fue <strong>${nombreMayorFuente}</strong> (${pctMayorFuente}% del total equivalente).<br>
+            • Emisiones de CO₂e estimadas: <strong>${Math.round(co2Estimado).toLocaleString()} kg-CO₂e</strong>.
+        `;
+    }
+
+    function initCharts() {
+        const ctxBar = document.getElementById('barChart').getContext('2d');
+        barChartInstance = new Chart(ctxBar, {
+            type: 'bar',
+            data: { labels: meses, datasets: [] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: { legend: { labels: { color: '#1e293b' } } },
+                scales: {
+                    x: { stacked: true, ticks: { color: '#64748b' }, grid: { color: '#e2e8f0' } },
+                    y: { stacked: true, ticks: { color: '#64748b' }, grid: { color: '#e2e8f0' } }
+                }
+            }
+        });
+
+        const ctxPie = document.getElementById('pieChart').getContext('2d');
+        pieChartInstance = new Chart(ctxPie, {
+            type: 'doughnut',
+            data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#1e293b' } },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                let value = context.parsed || 0;
+                                let dataset = context.dataset;
+                                let total = dataset.data.reduce((acc, curr) => acc + curr, 0);
+                                let percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                return ` ${label}: $${Math.round(value).toLocaleString()} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function updateCharts(matrizEqPorMes, totalesCostoPorFuente) {
+        if (!barChartInstance || !pieChartInstance) return;
+
+        barChartInstance.data.datasets = fuentesEnergia.map((f, idx) => ({
+            label: `${f.nombre} (kWh-eq)`,
+            data: matrizEqPorMes[idx],
+            backgroundColor: f.color
+        }));
+        barChartInstance.update();
+
+        pieChartInstance.data.labels = fuentesEnergia.map(f => f.nombre);
+        pieChartInstance.data.datasets[0].data = totalesCostoPorFuente;
+        pieChartInstance.data.datasets[0].backgroundColor = fuentesEnergia.map(f => f.color);
+        pieChartInstance.update();
+    }
+
+    function renderTodo() {
+        renderFactores();
+        renderEstructuraTablas();
+    }
+
+    function exportarExcel() {
+        const ed = document.getElementById("nombreEdificio").value.trim() || "Edificio";
+        const anio = document.getElementById("anioRegistro").value.trim() || "2026";
+        
+        let csv = `#EDIFICIO:${ed}\n#ANIO:${anio}\n`;
+        let factoresMeta = fuentesEnergia.map(f => `${f.nombre}:${f.factor}:${f.unidad}`).join('|');
+        csv += `#FACTORES:${factoresMeta}\n`;
+
+        csv += "Mes";
+        fuentesEnergia.forEach(f => {
+            csv += `,${f.nombre} (${f.unidad}),Costo ${f.nombre} ($)`;
+        });
+        csv += "\n";
+
+        for (let i = 0; i < 12; i++) {
+            csv += meses[i];
+            fuentesEnergia.forEach(f => {
+                const val = document.getElementById(`${f.id}_val_${i}`)?.value || 0;
+                const cost = document.getElementById(`${f.id}_cost_${i}`)?.value || 0;
+                csv += `,${val},${cost}`;
+            });
+            csv += "\n";
+        }
+
+        csv += "\n#INICIO_MAE\n";
+        csv += "Codigo MAE,Descripcion,Subsistema,Tipo,CAPEX,OPEX,TSR,Prioridad\n";
+        for (let i = 1; i <= totalFilasMae; i++) {
+            const desc = document.getElementById(`mae_desc_${i}`)?.value || "";
+            const sub = document.getElementById(`mae_sub_${i}`)?.value || "";
+            const tipo = document.getElementById(`mae_tipo_${i}`)?.value || "";
+            const capex = document.getElementById(`mae_capex_${i}`)?.value || 0;
+            const opex = document.getElementById(`mae_opex_${i}`)?.value || 0;
+            const tsr = document.getElementById(`mae_tsr_${i}`)?.innerText || 0;
+            const prio = document.getElementById(`mae_prio_${i}`)?.innerText || "N/A";
+            
+            if (desc || capex > 0 || opex > 0) {
+                csv += `MAE-${i < 10 ? '0' + i : i},"${desc}",${sub},${tipo},${capex},${opex},${tsr},${prio}\n`;
+            }
+        }
+
+        const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Registro_${ed.replace(/\s+/g, '_')}_${anio}.csv`;
+        link.click();
+    }
+
+    function cargarArchivo(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array', codepage: 65001 });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const sheetData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+            fuentesEnergia = [
+                { id: 'elec', nombre: 'Electricidad', unidad: 'kWh', factor: 1.0, color: '#1a73e8', fija: true },
+                { id: 'gas', nombre: 'Gas Licuado (GLP)', unidad: 'kg', factor: 12.8, color: '#2e7d32', fija: true },
+                { id: 'diesel', nombre: 'Petróleo Diésel', unidad: 'L', factor: 10.0, color: '#d97706', fija: true }
+            ];
+
+            let headerCols = [];
+
+            sheetData.forEach((row) => {
+                if (!row || row.length === 0) return;
+                const firstCell = limpiarTexto(String(row[0]));
+
+                if (firstCell.startsWith('#EDIFICIO:')) {
+                    document.getElementById("nombreEdificio").value = firstCell.replace('#EDIFICIO:', '').trim();
+                } else if (firstCell.startsWith('#ANIO:')) {
+                    document.getElementById("anioRegistro").value = firstCell.replace('#ANIO:', '').trim();
+                } else if (firstCell.startsWith('#FACTORES:')) {
+                    const factoresRaw = firstCell.replace('#FACTORES:', '').split('|');
+                    factoresRaw.forEach(fStr => {
+                        const parts = fStr.split(':');
+                        if (parts.length >= 2) {
+                            const nom = limpiarTexto(parts[0]);
+                            const fac = parseFloat(parts[1]) || 1.0;
+                            const uni = parts[2] ? limpiarTexto(parts[2]) : 'kg';
+                            
+                            const idNom = normalizarId(nom);
+                            let fExist = fuentesEnergia.find(f => f.id === idNom || normalizarId(f.nombre) === idNom);
+
+                            if (!fExist) {
+                                const color = coloresDisponibles[fuentesEnergia.length % coloresDisponibles.length];
+                                fuentesEnergia.push({ id: idNom, nombre: nom, unidad: uni, factor: fac, color: color, fija: false });
+                            } else {
+                                fExist.factor = fac;
+                            }
+                        }
+                    });
+                } else if (firstCell.toLowerCase() === 'mes' || firstCell.toLowerCase() === 'meses') {
+                    headerCols = row.map(c => limpiarTexto(String(c)));
+                }
+            });
+
+            if (headerCols.length > 0) {
+                for (let c = 1; c < headerCols.length; c += 2) {
+                    const colName = headerCols[c];
+                    if (!colName) continue;
+
+                    let nombreLimpio = colName.replace(/\(.*\)/, '').replace(/costo/i, '').trim();
+                    if (!nombreLimpio) continue;
+                    let idCol = normalizarId(nombreLimpio);
+
+                    if (!fuentesEnergia.some(f => f.id === idCol || normalizarId(f.nombre) === idCol)) {
+                        let factorDef = 1.0;
+                        if (nombreLimpio.toLowerCase().includes('pellet')) factorDef = 4.8;
+                        if (nombreLimpio.toLowerCase().includes('biomasa')) factorDef = 2.0;
+                        const color = coloresDisponibles[fuentesEnergia.length % coloresDisponibles.length];
+                        fuentesEnergia.push({ id: idCol, nombre: nombreLimpio, unidad: 'kg', factor: factorDef, color: color, fija: false });
+                    }
+                }
+            }
+
+            let filasMaeCount = 0;
+            sheetData.forEach(row => {
+                if (row && String(row[0]).startsWith('MAE-')) filasMaeCount++;
+            });
+
+            totalFilasMae = filasMaeCount > 0 ? filasMaeCount : 1;
+
+            renderTodo();
+
+            let maeIndex = 1;
+            sheetData.forEach(row => {
+                if (!row || row.length === 0) return;
+                const firstCell = limpiarTexto(String(row[0]));
+                const idx = meses.indexOf(firstCell);
+
+                if (idx !== -1) {
+                    let colIdx = 1;
+                    fuentesEnergia.forEach(f => {
+                        if (row[colIdx] !== undefined) {
+                            const valEl = document.getElementById(`${f.id}_val_${idx}`);
+                            if (valEl) valEl.value = row[colIdx];
+                        }
+                        if (row[colIdx+1] !== undefined) {
+                            const costEl = document.getElementById(`${f.id}_cost_${idx}`);
+                            if (costEl) costEl.value = row[colIdx+1];
+                        }
+                        colIdx += 2;
+                    });
+                } else if (firstCell.startsWith('MAE-')) {
+                    if (row[1] !== undefined) document.getElementById(`mae_desc_${maeIndex}`).value = limpiarTexto(row[1]);
+                    if (row[2] !== undefined) document.getElementById(`mae_sub_${maeIndex}`).value = limpiarTexto(row[2]);
+                    if (row[3] !== undefined) document.getElementById(`mae_tipo_${maeIndex}`).value = limpiarTexto(row[3]);
+                    if (row[4] !== undefined) document.getElementById(`mae_capex_${maeIndex}`).value = row[4];
+                    if (row[5] !== undefined) document.getElementById(`mae_opex_${maeIndex}`).value = row[5];
+                    calcularMae(maeIndex);
+                    maeIndex++;
+                }
+            });
+
+            const navAnalisisBtn = document.querySelectorAll('.nav-item')[4];
+            switchTab('paneAnalisis', navAnalisisBtn);
+            update();
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function imprimirPDF() {
+        const ed = document.getElementById("nombreEdificio").value.trim() || "Edificio";
+        const anio = document.getElementById("anioRegistro").value.trim() || "2026";
+        const tituloOriginal = document.title;
+
+        document.title = `Informe_Energia_${ed.replace(/\s+/g, '_')}_${anio}`;
+        window.print();
+        
+        setTimeout(() => { document.title = tituloOriginal; }, 1000);
+    }
+
+    window.onload = function() {
+        initCharts();
+        renderTodo();
+        update();
+    };
+</script>
+
+</body>
+</html>
