@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Calculadora de Gestión Energética v10.0</title>
+    <title id="pageTitle">Calculadora de Gestión Energética v11.0</title>
     
     <link rel="icon" href="favicon.png" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -22,12 +22,14 @@
             --active-nav-text: #0f172a;
         }
 
+        * { box-sizing: border-box; }
+
         body {
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 15px;
+            padding: 12px;
             overflow-x: hidden;
         }
 
@@ -37,13 +39,12 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border-bottom: 1px solid var(--card-border);
-            padding-bottom: 12px;
-            gap: 15px;
+            padding: 12px 15px;
+            gap: 12px;
             flex-wrap: wrap;
             background: #ffffff;
-            padding: 12px 18px;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
@@ -51,24 +52,25 @@
         .header-title-container {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
         }
 
         .app-logo {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 8px;
             object-fit: cover;
         }
 
-        h1 { margin: 0; font-size: 22px; color: var(--text-main); font-weight: 700; }
-        p.subtitle { margin: 2px 0 0; color: var(--text-sub); font-size: 12px; }
+        h1 { margin: 0; font-size: 20px; color: var(--text-main); font-weight: 700; }
+        p.subtitle { margin: 2px 0 0; color: var(--text-sub); font-size: 11px; }
 
         .header-controls {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: 8px;
+            width: auto;
         }
 
         .btn-group { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -76,15 +78,17 @@
             background-color: #1a73e8;
             color: #fff;
             border: none;
-            padding: 7px 14px;
+            padding: 7px 12px;
             border-radius: 6px;
             font-size: 12px;
             font-weight: 600;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 5px;
             transition: background 0.2s;
+            touch-action: manipulation;
         }
         .btn:hover { background-color: #1557b0; }
         .btn-secondary { background-color: #64748b; }
@@ -97,10 +101,11 @@
         .meta-inputs { 
             display: flex; 
             align-items: center; 
-            gap: 12px; 
+            gap: 10px; 
             font-size: 12px;
             font-weight: 600;
             color: var(--text-sub);
+            flex-wrap: wrap;
         }
 
         .meta-field {
@@ -118,19 +123,14 @@
             font-size: 12px;
         }
 
-        .meta-inputs input[type="text"]::placeholder {
-            color: #94a3b8;
-        }
+        .meta-inputs input[type="text"]::placeholder { color: #94a3b8; }
 
+        /* LAYOUT ADAPTABLE */
         .app-layout {
             display: grid;
             grid-template-columns: 160px minmax(0, 1fr);
-            gap: 15px;
+            gap: 12px;
             align-items: start;
-        }
-
-        @media (max-width: 900px) {
-            .app-layout { grid-template-columns: 1fr; }
         }
 
         .sidebar-menu {
@@ -159,6 +159,7 @@
             width: 100%;
             text-align: left;
             transition: background 0.2s, color 0.2s;
+            white-space: nowrap;
         }
 
         .nav-item:hover { background-color: #f1f5f9; color: var(--text-main); }
@@ -169,7 +170,7 @@
         }
         .nav-item .icon { font-size: 15px; }
 
-        .main-content { min-height: 500px; min-width: 0; }
+        .main-content { min-height: 400px; min-width: 0; }
         .tab-pane { display: none; }
         .tab-pane.active-pane { display: block; }
 
@@ -178,10 +179,12 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .section-title-text {
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             color: var(--text-main);
             display: flex;
@@ -200,7 +203,7 @@
 
         .factors-row {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
             gap: 10px;
         }
 
@@ -232,8 +235,8 @@
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 12px;
+            margin-bottom: 12px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
@@ -241,16 +244,16 @@
             background: #ffffff;
             border: 1px solid var(--card-border);
             border-radius: 16px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .welcome-card h2 { margin-top: 0; font-size: 20px; color: #1e293b; }
-        .welcome-card p { font-size: 13px; color: var(--text-sub); max-width: 600px; margin: 8px auto; line-height: 1.5; }
+        .welcome-card h2 { margin-top: 0; font-size: 18px; color: #1e293b; }
+        .welcome-card p { font-size: 12px; color: var(--text-sub); max-width: 600px; margin: 8px auto; line-height: 1.5; }
 
         .img-explicativa-container {
-            margin: 15px auto;
+            margin: 12px auto;
             max-width: 100%;
             text-align: center;
         }
@@ -266,29 +269,34 @@
             background: #eff6ff;
             border: 1px solid #bfdbfe;
             border-radius: 8px;
-            padding: 10px 14px;
+            padding: 10px 12px;
             margin-top: 12px;
-            font-size: 12px;
+            font-size: 11px;
             line-height: 1.5;
             color: #1e3a8a;
         }
 
+        /* TABLA CON SCROLL TÁCTIL SUAVE */
         .table-container { 
             width: 100%;
             overflow-x: auto; 
+            -webkit-overflow-scrolling: touch;
         }
+
         table { 
             width: 100%; 
             border-collapse: collapse; 
             font-size: 11px; 
             table-layout: auto;
         }
+
         th, td { 
             padding: 6px 3px; 
             text-align: center; 
             border-bottom: 1px solid var(--card-border); 
             white-space: nowrap;
         }
+
         th { 
             background: #f8fafc; 
             color: var(--text-sub); 
@@ -296,14 +304,15 @@
             text-transform: uppercase; 
             font-size: 10px; 
         }
+
         tr:hover { background-color: #f8fafc; }
 
         td.param-name { 
             text-align: left; 
             font-weight: 600; 
             padding-left: 8px; 
-            min-width: 150px;
-            max-width: 180px;
+            min-width: 140px;
+            max-width: 170px;
             white-space: normal;
             word-wrap: break-word;
         }
@@ -324,7 +333,7 @@
             box-sizing: border-box;
         }
 
-        input[type="number"] { text-align: right; width: 58px; }
+        input[type="number"] { text-align: right; width: 56px; }
         select.select-table { width: 100%; }
 
         .badge-priority {
@@ -341,35 +350,94 @@
 
         .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 10px;
-            margin-bottom: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 8px;
+            margin-bottom: 12px;
         }
 
         .kpi-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 10px;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .kpi-label { font-size: 10px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-        .kpi-value { font-size: 18px; font-weight: bold; margin-top: 4px; color: var(--text-main); }
+        .kpi-label { font-size: 9px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+        .kpi-value { font-size: 16px; font-weight: bold; margin-top: 4px; color: var(--text-main); }
 
         .charts-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
-        @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
-
         .row-total { background: #f8fafc; font-weight: bold; color: var(--text-main); }
-
         .print-index-card { display: none; }
+
+        /* REGULARIZACIÓN RESPONSIVA PARA MÓVILES Y TABLETS */
+        @media (max-width: 850px) {
+            body { padding: 8px; }
+
+            header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+
+            .header-controls {
+                align-items: stretch;
+                width: 100%;
+            }
+
+            .btn-group {
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                font-size: 11px;
+                padding: 8px 4px;
+            }
+
+            .meta-inputs {
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .meta-field input[type="text"] {
+                width: 100% !important;
+            }
+
+            .app-layout {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .sidebar-menu {
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .nav-item {
+                padding: 7px 10px;
+                font-size: 11px;
+                justify-content: center;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
 
         @media print {
             @page { size: A4 landscape; margin: 8mm; }
@@ -435,7 +503,6 @@
         </div>
 
         <div class="header-controls">
-            <!-- BOTONES SUPERIORES SIMPLIFICADOS -->
             <div class="btn-group">
                 <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;" onchange="cargarArchivo(event)">
                 <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">📂 Cargar</button>
@@ -443,15 +510,14 @@
                 <button class="btn" onclick="imprimirPDF()">🖨️ Imprimir</button>
             </div>
 
-            <!-- CAMPOS CON ETIQUETAS EXTERNAS -->
             <div class="meta-inputs">
                 <div class="meta-field">
                     <span>Archivo:</span>
-                    <input type="text" id="nombreEdificio" placeholder="Nombre Edificación / Muni." style="width: 180px;">
+                    <input type="text" id="nombreEdificio" placeholder="Nombre Edificación / Muni." style="width: 170px;">
                 </div>
                 <div class="meta-field">
                     <span>Año:</span>
-                    <input type="text" id="anioRegistro" placeholder="2026" style="width: 60px;">
+                    <input type="text" id="anioRegistro" placeholder="2026" style="width: 55px;">
                 </div>
             </div>
         </div>
@@ -484,9 +550,8 @@
             <div id="paneWelcome" class="tab-pane active-pane">
                 <div class="welcome-card">
                     <h2>Bienvenido a la Calculadora de Gestión Energética</h2>
-                    <p>Seleccione un módulo del menú lateral para gestionar los registros energéticos de su infraestructura.</p>
+                    <p>Seleccione un módulo del menú para gestionar los registros energéticos de su infraestructura.</p>
 
-                    <!-- CONTENEDOR PARA IMAGEN EXPLICATIVA -->
                     <div class="img-explicativa-container">
                         <img src="explicacion.png" alt="Instrucciones del programa" onerror="this.style.display='none'">
                     </div>
