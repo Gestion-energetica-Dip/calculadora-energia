@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Calculadora de Gestión Energética v11.0</title>
+    <title id="pageTitle">Calculadora de Gestión Energética v13.0</title>
     
     <link rel="icon" href="favicon.png" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -31,6 +31,16 @@
             margin: 0;
             padding: 12px;
             overflow-x: hidden;
+        }
+
+        /* Ocultar flechas de inputs numéricos */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
         }
 
         .container { max-width: 100%; margin: 0 auto; }
@@ -93,6 +103,8 @@
         .btn:hover { background-color: #1557b0; }
         .btn-secondary { background-color: #64748b; }
         .btn-secondary:hover { background-color: #475569; }
+        .btn-danger { background-color: #dc2626; color: #ffffff; }
+        .btn-danger:hover { background-color: #b91c1c; }
         .btn-success { background-color: #16a34a; }
         .btn-success:hover { background-color: #15803d; }
         .btn-add { background-color: #2563eb; color: #ffffff; font-weight: bold; }
@@ -276,7 +288,6 @@
             color: #1e3a8a;
         }
 
-        /* TABLA CON SCROLL TÁCTIL SUAVE */
         .table-container { 
             width: 100%;
             overflow-x: auto; 
@@ -323,18 +334,30 @@
             border-left: 2px solid var(--card-border);
         }
 
-        input[type="number"], input[type="text"].input-table, select.select-table {
+        input[type="number"], input[type="text"].input-table, input[type="text"].formatted-number, select.select-table {
             background: #ffffff;
             border: 1px solid #cbd5e1;
             color: var(--text-main);
-            padding: 4px 2px;
+            padding: 4px 4px;
             border-radius: 4px;
             font-size: 11px;
             box-sizing: border-box;
         }
 
-        input[type="number"] { text-align: right; width: 56px; }
+        input.formatted-number { text-align: right; width: 72px; }
         select.select-table { width: 100%; }
+
+        .btn-delete-row {
+            background: none;
+            border: none;
+            color: #dc2626;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background 0.15s;
+        }
+        .btn-delete-row:hover { background-color: #fee2e2; }
 
         .badge-priority {
             padding: 2px 6px;
@@ -377,72 +400,25 @@
         .row-total { background: #f8fafc; font-weight: bold; color: var(--text-main); }
         .print-index-card { display: none; }
 
-        /* REGULARIZACIÓN RESPONSIVA PARA MÓVILES Y TABLETS */
         @media (max-width: 850px) {
             body { padding: 8px; }
-
-            header {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 10px;
-            }
-
-            .header-controls {
-                align-items: stretch;
-                width: 100%;
-            }
-
-            .btn-group {
-                justify-content: space-between;
-                width: 100%;
-            }
-
-            .btn {
-                flex: 1;
-                font-size: 11px;
-                padding: 8px 4px;
-            }
-
-            .meta-inputs {
-                justify-content: space-between;
-                width: 100%;
-            }
-
-            .meta-field input[type="text"] {
-                width: 100% !important;
-            }
-
-            .app-layout {
-                grid-template-columns: 1fr;
-                gap: 10px;
-            }
-
-            .sidebar-menu {
-                flex-direction: row;
-                overflow-x: auto;
-                padding: 4px;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .nav-item {
-                padding: 7px 10px;
-                font-size: 11px;
-                justify-content: center;
-            }
-
-            .charts-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            header { flex-direction: column; align-items: stretch; gap: 10px; }
+            .header-controls { align-items: stretch; width: 100%; }
+            .btn-group { justify-content: space-between; width: 100%; }
+            .btn { flex: 1; font-size: 11px; padding: 8px 4px; }
+            .meta-inputs { justify-content: space-between; width: 100%; }
+            .meta-field input[type="text"] { width: 100% !important; }
+            .app-layout { grid-template-columns: 1fr; gap: 10px; }
+            .sidebar-menu { flex-direction: row; overflow-x: auto; padding: 4px; -webkit-overflow-scrolling: touch; }
+            .nav-item { padding: 7px 10px; font-size: 11px; justify-content: center; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media print {
             @page { size: A4 landscape; margin: 8mm; }
             body { background-color: #ffffff !important; color: #000000 !important; padding: 0 !important; }
-            .header-controls, .btn-add, .btn-delete-fuel, .sidebar-menu { display: none !important; }
+            .header-controls, .btn-add, .btn-delete-fuel, .btn-delete-row, .sidebar-menu { display: none !important; }
 
             .print-index-card {
                 display: block !important;
@@ -454,22 +430,8 @@
                 color: #000 !important;
             }
 
-            .print-index-card h3 {
-                margin: 0 0 8px 0 !important;
-                font-size: 14px !important;
-                color: #000 !important;
-                border-bottom: 1px solid #ddd;
-                padding-bottom: 4px;
-            }
-
-            .print-index-card ul {
-                margin: 0 !important;
-                padding-left: 20px !important;
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 4px 15px !important;
-                font-size: 11px !important;
-            }
+            .print-index-card h3 { margin: 0 0 8px 0 !important; font-size: 14px !important; color: #000 !important; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+            .print-index-card ul { margin: 0 !important; padding-left: 20px !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 4px 15px !important; font-size: 11px !important; }
 
             .app-layout, .tab-pane { display: block !important; }
             .section-header-inside { display: block !important; margin-bottom: 10px !important; }
@@ -546,7 +508,6 @@
         </nav>
 
         <main class="main-content">
-            <!-- PESTAÑA: BIENVENIDA -->
             <div id="paneWelcome" class="tab-pane active-pane">
                 <div class="welcome-card">
                     <h2>Bienvenido a la Calculadora de Gestión Energética</h2>
@@ -562,7 +523,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA: FACTORES DE CONVERSIÓN -->
             <div id="paneFactores" class="tab-pane">
                 <div class="print-index-card">
                     <h3>📋 ÍNDICE DEL INFORME ENERGÉTICO</h3>
@@ -584,7 +544,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA: INGRESO DE BOLETAS -->
             <div id="paneBoletas" class="tab-pane">
                 <div class="card">
                     <div class="section-header-inside">
@@ -599,7 +558,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA: CONSOLIDADO DE ENERGÍA -->
             <div id="paneConsolidado" class="tab-pane">
                 <div class="card">
                     <div class="section-header-inside">
@@ -614,7 +572,6 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA: ANÁLISIS ENERGÉTICO Y GRÁFICOS -->
             <div id="paneAnalisis" class="tab-pane">
                 <div class="section-header-inside">
                     <div class="section-title-text">Análisis Energético y Métricas Clave</div>
@@ -656,25 +613,28 @@
                 </div>
             </div>
 
-            <!-- PESTAÑA: EVALUACIÓN MAE -->
             <div id="paneMae" class="tab-pane">
                 <div class="card">
                     <div class="section-header-inside">
                         <div class="section-title-text">Evaluación Financiera y Priorización de Medidas de Ahorro de Energía (MAE)</div>
-                        <button class="btn btn-add" onclick="agregarFilaMae()">➕ Agregar Fila MAE</button>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="btn btn-danger" onclick="vaciarTodasLasMae()" title="Eliminar todas las filas MAE">🧹 Vaciar MAE</button>
+                            <button class="btn btn-add" onclick="agregarFilaMae()">➕ Agregar Fila MAE</button>
+                        </div>
                     </div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th style="width: 75px;">Código</th>
+                                    <th style="width: 70px;">Código</th>
                                     <th style="text-align: left;">Descripción de la Medida de Ahorro</th>
-                                    <th style="width: 160px;">Subsistema Afectado</th>
-                                    <th style="width: 140px;">Tipo de Medida</th>
-                                    <th style="width: 120px;">CAPEX ($)</th>
-                                    <th style="width: 120px;">Ahorro OPEX ($/año)</th>
-                                    <th style="width: 90px;">TSR (Años)</th>
-                                    <th style="width: 100px;">Prioridad</th>
+                                    <th style="width: 150px;">Subsistema Afectado</th>
+                                    <th style="width: 130px;">Tipo de Medida</th>
+                                    <th style="width: 110px;">CAPEX ($)</th>
+                                    <th style="width: 110px;">Ahorro OPEX ($/año)</th>
+                                    <th style="width: 80px;">TSR (Años)</th>
+                                    <th style="width: 90px;">Prioridad</th>
+                                    <th style="width: 35px;" title="Acciones">Acción</th>
                                 </tr>
                             </thead>
                             <tbody id="maeBody"></tbody>
@@ -683,7 +643,7 @@
                                     <td colspan="4" style="text-align: right; padding-right: 15px;">TOTAL MAE:</td>
                                     <td id="totalCapexMae" style="color: #1a73e8;">$0</td>
                                     <td id="totalOpexMae" style="color: #16a34a;">$0</td>
-                                    <td colspan="2"></td>
+                                    <td colspan="3"></td>
                                 </tr>
                             </tfoot>
                         </table>
@@ -721,8 +681,31 @@
         { id: 'diesel', nombre: 'Petróleo Diésel', unidad: 'L', factor: 10.0, color: '#d97706', fija: true }
     ];
 
-    let totalFilasMae = 1;
+    let listaMae = [
+        { id: 1, desc: "", sub: "", tipo: "", capex: "", opex: "" }
+    ];
+
     let barChartInstance = null, pieChartInstance = null;
+
+    // FORMATO DE MILES
+    function formatearNumero(valor) {
+        if (valor === "" || valor === null || valor === undefined) return "";
+        let numStr = String(valor).replace(/[^0-9]/g, "");
+        if (!numStr) return "";
+        return parseInt(numStr, 10).toLocaleString('es-CL');
+    }
+
+    function obtenerNumeroLimpio(valorStr) {
+        if (!valorStr) return 0;
+        let numStr = String(valorStr).replace(/[^0-9]/g, "");
+        return parseFloat(numStr) || 0;
+    }
+
+    function handleInputNumero(el, callback) {
+        let valLimpio = obtenerNumeroLimpio(el.value);
+        el.value = valLimpio > 0 ? valLimpio.toLocaleString('es-CL') : "";
+        if (callback) callback();
+    }
 
     function switchTab(paneId, btnEl) {
         document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active-pane'));
@@ -822,7 +805,6 @@
         }
 
         const estadoPrevio = respaldarEstadoActual();
-        const maePrevio = respaldarMae();
         
         const color = coloresDisponibles[fuentesEnergia.length % coloresDisponibles.length];
         const nuevaFuente = { id, nombre, unidad, factor, color, fija: false };
@@ -830,7 +812,6 @@
         
         renderTodo();
         restaurarEstado(estadoPrevio);
-        restaurarMae(maePrevio);
         update();
         return nuevaFuente;
     }
@@ -838,42 +819,20 @@
     function eliminarCombustible(idx) {
         if (confirm(`¿Eliminar la fuente ${fuentesEnergia[idx].nombre}?`)) {
             const estadoPrevio = respaldarEstadoActual();
-            const maePrevio = respaldarMae();
-            
             fuentesEnergia.splice(idx, 1);
-            
             renderTodo();
             restaurarEstado(estadoPrevio);
-            restaurarMae(maePrevio);
             update();
         }
     }
 
-    function respaldarMae() {
-        let maeData = [];
-        for (let i = 1; i <= totalFilasMae; i++) {
-            maeData.push({
-                desc: document.getElementById(`mae_desc_${i}`)?.value || "",
-                sub: document.getElementById(`mae_sub_${i}`)?.value || "",
-                tipo: document.getElementById(`mae_tipo_${i}`)?.value || "",
-                capex: document.getElementById(`mae_capex_${i}`)?.value || "",
-                opex: document.getElementById(`mae_opex_${i}`)?.value || ""
-            });
-        }
-        return maeData;
-    }
-
-    function restaurarMae(maeData) {
-        if (!maeData) return;
-        maeData.forEach((item, index) => {
-            const i = index + 1;
-            if (document.getElementById(`mae_desc_${i}`)) document.getElementById(`mae_desc_${i}`).value = item.desc;
-            if (document.getElementById(`mae_sub_${i}`)) document.getElementById(`mae_sub_${i}`).value = item.sub;
-            if (document.getElementById(`mae_tipo_${i}`)) document.getElementById(`mae_tipo_${i}`).value = item.tipo;
-            if (document.getElementById(`mae_capex_${i}`)) document.getElementById(`mae_capex_${i}`).value = item.capex;
-            if (document.getElementById(`mae_opex_${i}`)) document.getElementById(`mae_opex_${i}`).value = item.opex;
-            
-            calcularMae(i);
+    function capturarDatosMaeDOM() {
+        listaMae.forEach(item => {
+            item.desc = document.getElementById(`mae_desc_${item.id}`)?.value || "";
+            item.sub = document.getElementById(`mae_sub_${item.id}`)?.value || "";
+            item.tipo = document.getElementById(`mae_tipo_${item.id}`)?.value || "";
+            item.capex = document.getElementById(`mae_capex_${item.id}`)?.value || "";
+            item.opex = document.getElementById(`mae_opex_${item.id}`)?.value || "";
         });
     }
 
@@ -881,58 +840,79 @@
         const tbody = document.getElementById("maeBody");
         tbody.innerHTML = "";
 
-        for (let i = 1; i <= totalFilasMae; i++) {
-            const codeStr = `MAE-${i < 10 ? '0' + i : i}`;
+        listaMae.forEach((item, index) => {
+            const idxNum = index + 1;
+            const codeStr = `MAE-${idxNum < 10 ? '0' + idxNum : idxNum}`;
             const tr = document.createElement("tr");
 
             tr.innerHTML = `
                 <td><strong>${codeStr}</strong></td>
-                <td><input type="text" class="input-table" id="mae_desc_${i}" placeholder="[Ingresa medida]" style="width:100%; text-align:left;"></td>
+                <td><input type="text" class="input-table" id="mae_desc_${item.id}" value="${item.desc}" placeholder="[Ingresa medida]" style="width:100%; text-align:left;" oninput="capturarDatosMaeDOM(); calcularMae(${item.id});"></td>
                 <td>
-                    <select class="select-table" id="mae_sub_${i}">
+                    <select class="select-table" id="mae_sub_${item.id}" onchange="capturarDatosMaeDOM();">
                         <option value="">[Seleccionar]</option>
-                        <option value="Iluminación">Iluminación</option>
-                        <option value="Climatización (HVAC)">Climatización (HVAC)</option>
-                        <option value="Fuerza Motriz">Fuerza Motriz</option>
-                        <option value="Envolvente Térmica">Envolvente Térmica</option>
-                        <option value="Equipos de Oficina">Equipos de Oficina</option>
-                        <option value="Otros">Otros</option>
+                        <option value="Iluminación" ${item.sub === 'Iluminación' ? 'selected' : ''}>Iluminación</option>
+                        <option value="Climatización (HVAC)" ${item.sub === 'Climatización (HVAC)' ? 'selected' : ''}>Climatización (HVAC)</option>
+                        <option value="Fuerza Motriz" ${item.sub === 'Fuerza Motriz' ? 'selected' : ''}>Fuerza Motriz</option>
+                        <option value="Envolvente Térmica" ${item.sub === 'Envolvente Térmica' ? 'selected' : ''}>Envolvente Térmica</option>
+                        <option value="Equipos de Oficina" ${item.sub === 'Equipos de Oficina' ? 'selected' : ''}>Equipos de Oficina</option>
+                        <option value="Otros" ${item.sub === 'Otros' ? 'selected' : ''}>Otros</option>
                     </select>
                 </td>
                 <td>
-                    <select class="select-table" id="mae_tipo_${i}">
+                    <select class="select-table" id="mae_tipo_${item.id}" onchange="capturarDatosMaeDOM();">
                         <option value="">[Seleccionar]</option>
-                        <option value="Pasiva">Pasiva</option>
-                        <option value="Activa">Activa</option>
-                        <option value="Operacional / Gestión">Operacional / Gestión</option>
+                        <option value="Pasiva" ${item.tipo === 'Pasiva' ? 'selected' : ''}>Pasiva</option>
+                        <option value="Activa" ${item.tipo === 'Activa' ? 'selected' : ''}>Activa</option>
+                        <option value="Operacional / Gestión" ${item.tipo === 'Operacional / Gestión' ? 'selected' : ''}>Operacional / Gestión</option>
                     </select>
                 </td>
-                <td><input type="number" id="mae_capex_${i}" placeholder="0" style="width:100%;" oninput="calcularMae(${i})"></td>
-                <td><input type="number" id="mae_opex_${i}" placeholder="0" style="width:100%;" oninput="calcularMae(${i})"></td>
-                <td id="mae_tsr_${i}" style="font-weight:bold;">0.0</td>
-                <td><span id="mae_prio_${i}" class="badge-priority priority-na">N/A</span></td>
+                <td><input type="text" class="formatted-number" id="mae_capex_${item.id}" value="${formatearNumero(item.capex)}" placeholder="0" style="width:100%;" oninput="handleInputNumero(this, () => { capturarDatosMaeDOM(); calcularMae(${item.id}); });"></td>
+                <td><input type="text" class="formatted-number" id="mae_opex_${item.id}" value="${formatearNumero(item.opex)}" placeholder="0" style="width:100%;" oninput="handleInputNumero(this, () => { capturarDatosMaeDOM(); calcularMae(${item.id}); });"></td>
+                <td id="mae_tsr_${item.id}" style="font-weight:bold;">0.0</td>
+                <td><span id="mae_prio_${item.id}" class="badge-priority priority-na">N/A</span></td>
+                <td><button class="btn-delete-row" title="Eliminar fila" onclick="eliminarFilaMae(${item.id})">🗑️</button></td>
             `;
             tbody.appendChild(tr);
-        }
+            calcularMae(item.id);
+        });
+
+        calcularTotalesMae();
     }
 
     function agregarFilaMae() {
-        const maeDataPrev = respaldarMae();
-        totalFilasMae++;
+        capturarDatosMaeDOM();
+        const nuevoId = Date.now() + Math.floor(Math.random() * 1000);
+        listaMae.push({ id: nuevoId, desc: "", sub: "", tipo: "", capex: "", opex: "" });
         renderTablaMae();
-        restaurarMae(maeDataPrev);
-        calcularTodasLasMae();
     }
 
-    function calcularMae(i) {
-        const capex = parseFloat(document.getElementById(`mae_capex_${i}`)?.value) || 0;
-        const opex = parseFloat(document.getElementById(`mae_opex_${i}`)?.value) || 0;
+    function eliminarFilaMae(id) {
+        capturarDatosMaeDOM();
+        if (listaMae.length <= 1) {
+            listaMae = [{ id: Date.now(), desc: "", sub: "", tipo: "", capex: "", opex: "" }];
+        } else {
+            listaMae = listaMae.filter(item => item.id !== id);
+        }
+        renderTablaMae();
+    }
+
+    function vaciarTodasLasMae() {
+        if (confirm("¿Está seguro de eliminar todas las medidas MAE registradas?")) {
+            listaMae = [{ id: Date.now(), desc: "", sub: "", tipo: "", capex: "", opex: "" }];
+            renderTablaMae();
+        }
+    }
+
+    function calcularMae(id) {
+        const capex = obtenerNumeroLimpio(document.getElementById(`mae_capex_${id}`)?.value);
+        const opex = obtenerNumeroLimpio(document.getElementById(`mae_opex_${id}`)?.value);
 
         let tsr = 0;
         if (opex > 0 && capex >= 0) tsr = capex / opex;
 
-        const tsrCell = document.getElementById(`mae_tsr_${i}`);
-        const prioBadge = document.getElementById(`mae_prio_${i}`);
+        const tsrCell = document.getElementById(`mae_tsr_${id}`);
+        const prioBadge = document.getElementById(`mae_prio_${id}`);
 
         if (tsrCell) tsrCell.innerText = tsr > 0 ? tsr.toFixed(1) : "0.0";
 
@@ -954,27 +934,25 @@
         calcularTotalesMae();
     }
 
-    function calcularTodasLasMae() {
-        for (let i = 1; i <= totalFilasMae; i++) calcularMae(i);
-    }
-
     function calcularTotalesMae() {
         let totalCapex = 0;
         let totalOpex = 0;
 
-        for (let i = 1; i <= totalFilasMae; i++) {
-            totalCapex += parseFloat(document.getElementById(`mae_capex_${i}`)?.value) || 0;
-            totalOpex += parseFloat(document.getElementById(`mae_opex_${i}`)?.value) || 0;
-        }
+        listaMae.forEach(item => {
+            const capex = obtenerNumeroLimpio(document.getElementById(`mae_capex_${item.id}`)?.value);
+            const opex = obtenerNumeroLimpio(document.getElementById(`mae_opex_${item.id}`)?.value);
+            totalCapex += capex;
+            totalOpex += opex;
+        });
 
         let tsrPonderado = 0;
         if (totalOpex > 0 && totalCapex >= 0) tsrPonderado = totalCapex / totalOpex;
 
-        document.getElementById("totalCapexMae").innerText = "$" + Math.round(totalCapex).toLocaleString();
-        document.getElementById("totalOpexMae").innerText = "$" + Math.round(totalOpex).toLocaleString();
+        document.getElementById("totalCapexMae").innerText = "$" + Math.round(totalCapex).toLocaleString('es-CL');
+        document.getElementById("totalOpexMae").innerText = "$" + Math.round(totalOpex).toLocaleString('es-CL');
 
-        document.getElementById("kpiCapexTotalMae").innerText = "$" + Math.round(totalCapex).toLocaleString();
-        document.getElementById("kpiOpexTotalMae").innerText = "$" + Math.round(totalOpex).toLocaleString();
+        document.getElementById("kpiCapexTotalMae").innerText = "$" + Math.round(totalCapex).toLocaleString('es-CL');
+        document.getElementById("kpiOpexTotalMae").innerText = "$" + Math.round(totalOpex).toLocaleString('es-CL');
         document.getElementById("kpiTsrPonderadoMae").innerHTML = (tsrPonderado > 0 ? tsrPonderado.toFixed(1) : "0.0") + ' <span style="font-size: 11px; font-weight: normal;">años</span>';
     }
 
@@ -998,7 +976,7 @@
             let trVal = document.createElement("tr");
             let htmlVal = `<td class="param-name" style="color:${f.color}">${f.nombre} (${f.unidad})</td>`;
             for (let i = 0; i < 12; i++) {
-                htmlVal += `<td><input type="number" id="${f.id}_val_${i}" placeholder="0" oninput="update()"></td>`;
+                htmlVal += `<td><input type="text" class="formatted-number" id="${f.id}_val_${i}" placeholder="0" oninput="handleInputNumero(this, update)"></td>`;
             }
             trVal.innerHTML = htmlVal;
             inputBody.appendChild(trVal);
@@ -1006,7 +984,7 @@
             let trCost = document.createElement("tr");
             let htmlCost = `<td class="param-name" style="color:${f.color}">Costo ${f.nombre} ($)</td>`;
             for (let i = 0; i < 12; i++) {
-                htmlCost += `<td><input type="number" id="${f.id}_cost_${i}" placeholder="0" oninput="update()"></td>`;
+                htmlCost += `<td><input type="text" class="formatted-number" id="${f.id}_cost_${i}" placeholder="0" oninput="handleInputNumero(this, update)"></td>`;
             }
             trCost.innerHTML = htmlCost;
             inputBody.appendChild(trCost);
@@ -1054,12 +1032,12 @@
             let eqMesTotal = 0, costoMesTotal = 0;
 
             fuentesEnergia.forEach((f, fIdx) => {
-                const valInput = parseFloat(document.getElementById(`${f.id}_val_${i}`)?.value) || 0;
-                const costInput = parseFloat(document.getElementById(`${f.id}_cost_${i}`)?.value) || 0;
+                const valInput = obtenerNumeroLimpio(document.getElementById(`${f.id}_val_${i}`)?.value);
+                const costInput = obtenerNumeroLimpio(document.getElementById(`${f.id}_cost_${i}`)?.value);
 
                 const eqVal = valInput * f.factor;
                 if(document.getElementById(`resEq_${f.id}_${i}`)) {
-                    document.getElementById(`resEq_${f.id}_${i}`).innerText = Math.round(eqVal).toLocaleString();
+                    document.getElementById(`resEq_${f.id}_${i}`).innerText = Math.round(eqVal).toLocaleString('es-CL');
                 }
 
                 totalesEqPorFuente[fIdx] += eqVal;
@@ -1070,8 +1048,8 @@
                 costoMesTotal += costInput;
             });
 
-            if(document.getElementById(`resEqTotal_${i}`)) document.getElementById(`resEqTotal_${i}`).innerText = Math.round(eqMesTotal).toLocaleString();
-            if(document.getElementById(`resCostoTotal_${i}`)) document.getElementById(`resCostoTotal_${i}`).innerText = "$" + Math.round(costoMesTotal).toLocaleString();
+            if(document.getElementById(`resEqTotal_${i}`)) document.getElementById(`resEqTotal_${i}`).innerText = Math.round(eqMesTotal).toLocaleString('es-CL');
+            if(document.getElementById(`resCostoTotal_${i}`)) document.getElementById(`resCostoTotal_${i}`).innerText = "$" + Math.round(costoMesTotal).toLocaleString('es-CL');
 
             consumoTotalPorMes.push({ mes: mesesCompletos[i], eq: eqMesTotal });
             sumEqTotalGeneral += eqMesTotal;
@@ -1080,22 +1058,22 @@
 
         fuentesEnergia.forEach((f, idx) => {
             const elAnual = document.getElementById(`resEqAnual_${f.id}`);
-            if (elAnual) elAnual.innerText = Math.round(totalesEqPorFuente[idx]).toLocaleString() + " kWh-eq";
+            if (elAnual) elAnual.innerText = Math.round(totalesEqPorFuente[idx]).toLocaleString('es-CL') + " kWh-eq";
         });
 
         if (document.getElementById("resEqTotalAnual")) {
-            document.getElementById("resEqTotalAnual").innerText = Math.round(sumEqTotalGeneral).toLocaleString() + " kWh-eq";
+            document.getElementById("resEqTotalAnual").innerText = Math.round(sumEqTotalGeneral).toLocaleString('es-CL') + " kWh-eq";
         }
         if (document.getElementById("resCostoTotalAnual")) {
-            document.getElementById("resCostoTotalAnual").innerText = "$" + Math.round(sumCostoTotalGeneral).toLocaleString();
+            document.getElementById("resCostoTotalAnual").innerText = "$" + Math.round(sumCostoTotalGeneral).toLocaleString('es-CL');
         }
 
         const co2Estimado = sumEqTotalGeneral * 0.38;
 
-        document.getElementById("kpiCostoTotal").innerText = "$" + Math.round(sumCostoTotalGeneral).toLocaleString();
-        document.getElementById("kpiEqTotal").innerHTML = Math.round(sumEqTotalGeneral).toLocaleString() + ' <span style="font-size: 11px; font-weight: normal;">kWh-eq</span>';
-        document.getElementById("kpiCo2Total").innerHTML = Math.round(co2Estimado).toLocaleString() + ' <span style="font-size: 11px; font-weight: normal;">kg-CO₂e</span>';
-        document.getElementById("kpiCostoProm").innerText = "$" + Math.round(sumCostoTotalGeneral / 12).toLocaleString();
+        document.getElementById("kpiCostoTotal").innerText = "$" + Math.round(sumCostoTotalGeneral).toLocaleString('es-CL');
+        document.getElementById("kpiEqTotal").innerHTML = Math.round(sumEqTotalGeneral).toLocaleString('es-CL') + ' <span style="font-size: 11px; font-weight: normal;">kWh-eq</span>';
+        document.getElementById("kpiCo2Total").innerHTML = Math.round(co2Estimado).toLocaleString('es-CL') + ' <span style="font-size: 11px; font-weight: normal;">kg-CO₂e</span>';
+        document.getElementById("kpiCostoProm").innerText = "$" + Math.round(sumCostoTotalGeneral / 12).toLocaleString('es-CL');
 
         generarDiagnosticoTexto(consumoTotalPorMes, totalesEqPorFuente, sumEqTotalGeneral, co2Estimado);
         updateCharts(matrizEqPorMes, totalesCostoPorFuente);
@@ -1126,7 +1104,7 @@
             📌 <strong>Diagnóstico de Consumo y Emisiones:</strong><br>
             • Los tres meses de mayor consumo fueron <strong>${top3[0]}</strong>, <strong>${top3[1]}</strong> y <strong>${top3[2]}</strong>.<br>
             • La fuente de mayor demanda fue <strong>${nombreMayorFuente}</strong> (${pctMayorFuente}% del total equivalente).<br>
-            • Emisiones de CO₂e estimadas: <strong>${Math.round(co2Estimado).toLocaleString()} kg-CO₂e</strong>.
+            • Emisiones de CO₂e estimadas: <strong>${Math.round(co2Estimado).toLocaleString('es-CL')} kg-CO₂e</strong>.
         `;
     }
 
@@ -1163,7 +1141,7 @@
                                 let dataset = context.dataset;
                                 let total = dataset.data.reduce((acc, curr) => acc + curr, 0);
                                 let percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                return ` ${label}: $${Math.round(value).toLocaleString()} (${percentage}%)`;
+                                return ` ${label}: $${Math.round(value).toLocaleString('es-CL')} (${percentage}%)`;
                             }
                         }
                     }
@@ -1194,6 +1172,7 @@
     }
 
     function exportarExcel() {
+        capturarDatosMaeDOM();
         const ed = document.getElementById("nombreEdificio").value.trim() || "Edificio";
         const anio = document.getElementById("anioRegistro").value.trim() || "2026";
         
@@ -1210,8 +1189,8 @@
         for (let i = 0; i < 12; i++) {
             csv += meses[i];
             fuentesEnergia.forEach(f => {
-                const val = document.getElementById(`${f.id}_val_${i}`)?.value || 0;
-                const cost = document.getElementById(`${f.id}_cost_${i}`)?.value || 0;
+                const val = obtenerNumeroLimpio(document.getElementById(`${f.id}_val_${i}`)?.value);
+                const cost = obtenerNumeroLimpio(document.getElementById(`${f.id}_cost_${i}`)?.value);
                 csv += `,${val},${cost}`;
             });
             csv += "\n";
@@ -1219,19 +1198,22 @@
 
         csv += "\n#INICIO_MAE\n";
         csv += "Codigo MAE,Descripcion,Subsistema,Tipo,CAPEX,OPEX,TSR,Prioridad\n";
-        for (let i = 1; i <= totalFilasMae; i++) {
-            const desc = document.getElementById(`mae_desc_${i}`)?.value || "";
-            const sub = document.getElementById(`mae_sub_${i}`)?.value || "";
-            const tipo = document.getElementById(`mae_tipo_${i}`)?.value || "";
-            const capex = document.getElementById(`mae_capex_${i}`)?.value || 0;
-            const opex = document.getElementById(`mae_opex_${i}`)?.value || 0;
-            const tsr = document.getElementById(`mae_tsr_${i}`)?.innerText || 0;
-            const prio = document.getElementById(`mae_prio_${i}`)?.innerText || "N/A";
+        
+        listaMae.forEach((item, index) => {
+            const idxNum = index + 1;
+            const codeStr = `MAE-${idxNum < 10 ? '0' + idxNum : idxNum}`;
+            const desc = item.desc || "";
+            const sub = item.sub || "";
+            const tipo = item.tipo || "";
+            const capex = obtenerNumeroLimpio(document.getElementById(`mae_capex_${item.id}`)?.value);
+            const opex = obtenerNumeroLimpio(document.getElementById(`mae_opex_${item.id}`)?.value);
+            const tsr = document.getElementById(`mae_tsr_${item.id}`)?.innerText || 0;
+            const prio = document.getElementById(`mae_prio_${item.id}`)?.innerText || "N/A";
             
             if (desc || capex > 0 || opex > 0) {
-                csv += `MAE-${i < 10 ? '0' + i : i},"${desc}",${sub},${tipo},${capex},${opex},${tsr},${prio}\n`;
+                csv += `${codeStr},"${desc}",${sub},${tipo},${capex},${opex},${tsr},${prio}\n`;
             }
-        }
+        });
 
         const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
@@ -1311,16 +1293,24 @@
                 }
             }
 
-            let filasMaeCount = 0;
+            let maeCargadas = [];
             sheetData.forEach(row => {
-                if (row && String(row[0]).startsWith('MAE-')) filasMaeCount++;
+                if (row && String(row[0]).startsWith('MAE-')) {
+                    maeCargadas.push({
+                        id: Date.now() + Math.floor(Math.random() * 10000),
+                        desc: row[1] ? limpiarTexto(row[1]) : "",
+                        sub: row[2] ? limpiarTexto(row[2]) : "",
+                        tipo: row[3] ? limpiarTexto(row[3]) : "",
+                        capex: row[4] !== undefined ? row[4] : "",
+                        opex: row[5] !== undefined ? row[5] : ""
+                    });
+                }
             });
 
-            totalFilasMae = filasMaeCount > 0 ? filasMaeCount : 1;
+            listaMae = maeCargadas.length > 0 ? maeCargadas : [{ id: Date.now(), desc: "", sub: "", tipo: "", capex: "", opex: "" }];
 
             renderTodo();
 
-            let maeIndex = 1;
             sheetData.forEach(row => {
                 if (!row || row.length === 0) return;
                 const firstCell = limpiarTexto(String(row[0]));
@@ -1331,22 +1321,14 @@
                     fuentesEnergia.forEach(f => {
                         if (row[colIdx] !== undefined) {
                             const valEl = document.getElementById(`${f.id}_val_${idx}`);
-                            if (valEl) valEl.value = row[colIdx];
+                            if (valEl) valEl.value = formatearNumero(row[colIdx]);
                         }
                         if (row[colIdx+1] !== undefined) {
                             const costEl = document.getElementById(`${f.id}_cost_${idx}`);
-                            if (costEl) costEl.value = row[colIdx+1];
+                            if (costEl) costEl.value = formatearNumero(row[colIdx+1]);
                         }
                         colIdx += 2;
                     });
-                } else if (firstCell.startsWith('MAE-')) {
-                    if (row[1] !== undefined) document.getElementById(`mae_desc_${maeIndex}`).value = limpiarTexto(row[1]);
-                    if (row[2] !== undefined) document.getElementById(`mae_sub_${maeIndex}`).value = limpiarTexto(row[2]);
-                    if (row[3] !== undefined) document.getElementById(`mae_tipo_${maeIndex}`).value = limpiarTexto(row[3]);
-                    if (row[4] !== undefined) document.getElementById(`mae_capex_${maeIndex}`).value = row[4];
-                    if (row[5] !== undefined) document.getElementById(`mae_opex_${maeIndex}`).value = row[5];
-                    calcularMae(maeIndex);
-                    maeIndex++;
                 }
             });
 
