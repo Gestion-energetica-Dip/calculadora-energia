@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="pageTitle">Calculadora de Gestión Energética v14.2</title>
+    <title id="pageTitle">Calculadora de Gestión Energética v14.4 Fix</title>
     
     <link rel="icon" href="favicon.png" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -76,6 +76,7 @@
             gap: 5px;
             transition: background 0.2s;
             touch-action: manipulation;
+            text-decoration: none;
         }
         .btn:hover { background-color: #1557b0; }
         .btn-secondary { background-color: #64748b; }
@@ -143,7 +144,6 @@
         .img-explicativa-container { margin: 12px auto; max-width: 100%; text-align: center; }
         .img-explicativa-container img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--card-border); }
 
-        /* ESTILOS DE TARJETAS DE FACTORES RESTAURADOS */
         .factors-row { display: flex; flex-direction: column; gap: 8px; }
         .factor-card {
             background: #ffffff;
@@ -171,6 +171,78 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .btn-delete-fuel:hover { background-color: #fee2e2; }
+
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 18px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            margin-top: 8px;
+        }
+        .drop-zone:hover { border-color: #1a73e8; background: #eff6ff; }
+
+        .attachment-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .attachment-card {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 8px;
+            width: 150px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .attachment-preview {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #f1f5f9;
+        }
+
+        .attachment-pdf-icon {
+            width: 100%;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #fef2f2;
+            color: #dc2626;
+            font-weight: bold;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .btn-delete-attach {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
 
         .analysis-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 12px; margin-top: 12px; font-size: 11px; line-height: 1.5; color: #1e3a8a; }
 
@@ -205,6 +277,7 @@
         .charts-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-bottom: 12px; }
         .row-total { background: #f8fafc; font-weight: bold; color: var(--text-main); }
         .print-index-card { display: none; }
+        .print-attachments-container { display: none; }
 
         @media (max-width: 850px) {
             body { padding: 8px; }
@@ -222,9 +295,9 @@
         }
 
         @media print {
-            @page { size: A4 landscape; margin: 8mm; }
+            @page { size: A4 landscape; margin: 6mm; }
             body { background-color: #ffffff !important; color: #000000 !important; padding: 0 !important; }
-            .header-controls, .btn-add, .btn-delete-fuel, .btn-delete-row, .sidebar-menu { display: none !important; }
+            .header-controls, .btn-add, .btn-delete-fuel, .btn-delete-row, .sidebar-menu, .drop-zone, .btn-delete-attach, #btnDescargarAttach { display: none !important; }
 
             .print-index-card {
                 display: block !important;
@@ -240,21 +313,34 @@
             .print-index-card ul { margin: 0 !important; padding-left: 20px !important; display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 4px 15px !important; font-size: 11px !important; }
 
             .app-layout, .tab-pane { display: block !important; }
-            .section-header-inside { display: block !important; margin-bottom: 10px !important; }
-            .section-title-text { color: #000000 !important; font-size: 15px !important; font-weight: bold !important; }
+            .section-header-inside { display: block !important; margin-bottom: 8px !important; }
+            .section-title-text { color: #000000 !important; font-size: 14px !important; font-weight: bold !important; }
             .card, .factor-card, .kpi-card, .analysis-box { background: #ffffff !important; border: 1px solid #ccc !important; color: #000000 !important; box-shadow: none !important; }
             th { background-color: #f0f0f0 !important; color: #000000 !important; }
             td { border-bottom: 1px solid #ddd !important; color: #000000 !important; }
             input, select { border: none !important; background: transparent !important; color: #000000 !important; appearance: none; -webkit-appearance: none; }
 
             #paneWelcome { display: none !important; }
-            #paneFactores, #paneBoletas, #paneConsolidado, #paneAnalisis, #paneMae { page-break-after: always !important; }
+            #paneFactores, #paneBoletas, #paneConsolidado, #paneAnalisis, #paneMae { page-break-after: always !important; page-break-inside: avoid !important; }
 
-            .charts-grid { display: grid !important; grid-template-columns: 1.8fr 1.2fr !important; gap: 15px !important; align-items: center !important; page-break-inside: avoid !important; }
-            .charts-grid > .card { margin-bottom: 0 !important; padding: 10px !important; }
-            .pie-card-container { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; width: 100% !important; }
-            .pie-card-container canvas { max-width: 260px !important; max-height: 260px !important; aspect-ratio: 1 / 1 !important; }
-            .kpi-grid { page-break-inside: avoid !important; }
+            #cardAdjuntosIngresos { display: none !important; }
+
+            #paneAnalisis .charts-grid {
+                display: grid !important;
+                grid-template-columns: 1.8fr 1.2fr !important;
+                gap: 10px !important;
+                align-items: center !important;
+                page-break-inside: avoid !important;
+            }
+            #paneAnalisis .charts-grid > .card { margin-bottom: 0 !important; padding: 8px !important; }
+            #paneAnalisis .pie-card-container { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; width: 100% !important; }
+            #paneAnalisis canvas#pieChart { max-width: 220px !important; max-height: 220px !important; }
+
+            .print-attachments-container { display: block !important; }
+            .print-attach-page { page-break-before: always !important; page-break-inside: avoid !important; height: 100vh; display: flex; flex-direction: column; }
+            .print-attach-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 15px !important; margin-top: 10px !important; }
+            .print-attach-card { border: 1px solid #ccc !important; border-radius: 8px !important; padding: 10px !important; text-align: center !important; }
+            .print-attach-card img { max-width: 100% !important; max-height: 460px !important; object-fit: contain !important; }
         }
     </style>
 </head>
@@ -338,6 +424,7 @@
                         <li><strong>Página 3:</strong> Consolidado de Energía Equivalente y Costos</li>
                         <li><strong>Página 4:</strong> Análisis Energético y Métricas Clave</li>
                         <li><strong>Página 5:</strong> Evaluación Financiera y Priorización MAE</li>
+                        <li><strong>Página 6+:</strong> Documentos Adjuntos y Respaldos</li>
                     </ul>
                 </div>
 
@@ -361,6 +448,24 @@
                             <tbody id="inputBody"></tbody>
                         </table>
                     </div>
+                </div>
+
+                <div class="card" id="cardAdjuntosIngresos">
+                    <div class="section-header-inside">
+                        <div class="section-title-text">Gestión de Respaldos y Documentos Adjuntos</div>
+                    </div>
+                    <p style="font-size:11px; color:var(--text-sub); margin-top:0;">
+                        Adjunte copias digitales de boletas, facturas o certificados (.pdf, .jpg, .png). Se incrustarán automáticamente en la planilla Excel.
+                    </p>
+
+                    <div class="drop-zone" onclick="document.getElementById('attachFileInput').click()">
+                        <input type="file" id="attachFileInput" accept="image/*, application/pdf" multiple style="display:none;" onchange="manejarCargaAdjuntos(event)">
+                        <span style="font-size:22px;">📁</span>
+                        <div style="font-size:12px; font-weight:600; margin-top:4px; color:#1a73e8;">Haz clic o arrastra archivos aquí</div>
+                        <div style="font-size:10px; color:var(--text-sub); margin-top:2px;">Formatos soportados: PNG, JPG, PDF (Máx. 5 MB)</div>
+                    </div>
+
+                    <div class="attachment-grid" id="attachmentGridContainer"></div>
                 </div>
             </div>
 
@@ -479,6 +584,8 @@
                 </div>
             </div>
 
+            <div class="print-attachments-container" id="printAttachmentsSection"></div>
+
         </main>
     </div>
 </div>
@@ -494,11 +601,107 @@
         { id: 'diesel', nombre: 'Petróleo Diésel', unidad: 'L', factor: 10.0, color: '#d97706', fija: true }
     ];
 
-    let listaMae = [
-        { id: 1, desc: "", sub: "", tipo: "", capex: "", opex: "" }
-    ];
+    let listaMae = [{ id: 1, desc: "", sub: "", tipo: "", capex: "", opex: "" }];
+    let listaAdjuntos = [];
 
     let barChartInstance = null, pieChartInstance = null, paretoChartInstance = null;
+
+    function manejarCargaAdjuntos(event) {
+        const files = event.target.files;
+        if (!files || files.length === 0) return;
+
+        Array.from(files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                listaAdjuntos.push({
+                    id: Date.now() + Math.floor(Math.random() * 1000),
+                    nombre: file.name,
+                    tipo: file.type,
+                    data: e.target.result
+                });
+                renderAdjuntos();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function renderAdjuntos() {
+        const container = document.getElementById("attachmentGridContainer");
+        container.innerHTML = "";
+
+        listaAdjuntos.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "attachment-card";
+
+            let contentHtml = "";
+            if (item.tipo.startsWith("image/")) {
+                contentHtml = `<img src="${item.data}" class="attachment-preview" alt="${item.nombre}">`;
+            } else {
+                contentHtml = `
+                    <div class="attachment-pdf-icon">
+                        <span style="font-size:24px;">📄</span>
+                        <span style="margin-top:2px;">PDF</span>
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <button class="btn-delete-attach" title="Eliminar" onclick="eliminarAdjunto(${item.id})">✕</button>
+                ${contentHtml}
+                <div style="font-size:10px; font-weight:600; margin-top:6px; width:100%; text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${item.nombre}">${item.nombre}</div>
+                <a href="${item.data}" download="${item.nombre}" class="btn" id="btnDescargarAttach" style="padding:3px 0; font-size:10px; width:100%; margin-top:6px; background:#1a73e8;">⬇️ Descargar</a>
+            `;
+            container.appendChild(card);
+        });
+        prepararImpresionAdjuntos();
+    }
+
+    function eliminarAdjunto(id) {
+        listaAdjuntos = listaAdjuntos.filter(item => item.id !== id);
+        renderAdjuntos();
+    }
+
+    function prepararImpresionAdjuntos() {
+        const printContainer = document.getElementById("printAttachmentsSection");
+        printContainer.innerHTML = "";
+
+        if (listaAdjuntos.length === 0) return;
+
+        for (let i = 0; i < listaAdjuntos.length; i += 2) {
+            const pageDiv = document.createElement("div");
+            pageDiv.className = "print-attach-page";
+
+            let pageHtml = `
+                <div class="section-title-text" style="font-size:15px; margin-bottom:8px;">
+                    📎 Documentos Adjuntos y Respaldos (Página ${6 + Math.floor(i / 2)})
+                </div>
+                <div class="print-attach-grid">
+            `;
+
+            for (let j = i; j < i + 2 && j < listaAdjuntos.length; j++) {
+                const item = listaAdjuntos[j];
+                pageHtml += `
+                    <div class="print-attach-card">
+                        <div style="font-size:11px; font-weight:bold; margin-bottom:4px;">${item.nombre}</div>
+                `;
+                if (item.tipo.startsWith("image/")) {
+                    pageHtml += `<img src="${item.data}" alt="${item.nombre}">`;
+                } else {
+                    pageHtml += `
+                        <div style="padding:30px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px;">
+                            <span style="font-size:36px;">📄</span>
+                            <div style="font-size:11px; margin-top:6px;">Documento PDF adjunto en el registro digital</div>
+                        </div>
+                    `;
+                }
+                pageHtml += `</div>`;
+            }
+
+            pageHtml += `</div>`;
+            pageDiv.innerHTML = pageHtml;
+            printContainer.appendChild(pageDiv);
+        }
+    }
 
     function formatearNumero(valor) {
         if (valor === "" || valor === null || valor === undefined) return "";
@@ -796,7 +999,6 @@
 
         datosValidos.sort((a, b) => b.opex - a.opex);
 
-        // Añadimos punto inicial (0,0) para que la línea comience abajo como en el ejemplo
         let labels = [""];
         let dataPctAhorro = [0];
         let dataCapex = [0];
@@ -1007,7 +1209,6 @@
             }
         });
 
-        // DIAGRAMA DE PARETO DE MAE CORREGIDO
         const ctxPareto = document.getElementById('paretoChart').getContext('2d');
         paretoChartInstance = new Chart(ctxPareto, {
             type: 'bar',
@@ -1097,6 +1298,7 @@
     function renderTodo() {
         renderFactores();
         renderEstructuraTablas();
+        renderAdjuntos();
     }
 
     function exportarExcel() {
@@ -1143,6 +1345,14 @@
             }
         });
 
+        if (listaAdjuntos.length > 0) {
+            csv += "\n#INICIO_ADJUNTOS\n";
+            csv += "Nombre,Tipo,Data\n";
+            listaAdjuntos.forEach(att => {
+                csv += `"${att.nombre}","${att.tipo}","${att.data}"\n`;
+            });
+        }
+
         const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
@@ -1168,12 +1378,24 @@
             ];
 
             let headerCols = [];
+            let maeCargadas = [];
+            let adjuntosCargados = [];
+            let flagAdjuntos = false;
 
             sheetData.forEach((row) => {
                 if (!row || row.length === 0) return;
                 const firstCell = limpiarTexto(String(row[0]));
 
-                if (firstCell.startsWith('#EDIFICIO:')) {
+                if (firstCell === '#INICIO_ADJUNTOS') { flagAdjuntos = true; return; }
+
+                if (flagAdjuntos && row.length >= 3 && !firstCell.startsWith('Nombre')) {
+                    adjuntosCargados.push({
+                        id: Date.now() + Math.floor(Math.random() * 10000),
+                        nombre: limpiarTexto(row[0]),
+                        tipo: limpiarTexto(row[1]),
+                        data: limpiarTexto(row[2])
+                    });
+                } else if (firstCell.startsWith('#EDIFICIO:')) {
                     document.getElementById("nombreEdificio").value = firstCell.replace('#EDIFICIO:', '').trim();
                 } else if (firstCell.startsWith('#ANIO:')) {
                     document.getElementById("anioRegistro").value = firstCell.replace('#ANIO:', '').trim();
@@ -1199,6 +1421,15 @@
                     });
                 } else if (firstCell.toLowerCase() === 'mes' || firstCell.toLowerCase() === 'meses') {
                     headerCols = row.map(c => limpiarTexto(String(c)));
+                } else if (firstCell.startsWith('MAE-')) {
+                    maeCargadas.push({
+                        id: Date.now() + Math.floor(Math.random() * 10000),
+                        desc: row[1] ? limpiarTexto(row[1]) : "",
+                        sub: row[2] ? limpiarTexto(row[2]) : "",
+                        tipo: row[3] ? limpiarTexto(row[3]) : "",
+                        capex: row[4] !== undefined ? row[4] : "",
+                        opex: row[5] !== undefined ? row[5] : ""
+                    });
                 }
             });
 
@@ -1221,21 +1452,8 @@
                 }
             }
 
-            let maeCargadas = [];
-            sheetData.forEach(row => {
-                if (row && String(row[0]).startsWith('MAE-')) {
-                    maeCargadas.push({
-                        id: Date.now() + Math.floor(Math.random() * 10000),
-                        desc: row[1] ? limpiarTexto(row[1]) : "",
-                        sub: row[2] ? limpiarTexto(row[2]) : "",
-                        tipo: row[3] ? limpiarTexto(row[3]) : "",
-                        capex: row[4] !== undefined ? row[4] : "",
-                        opex: row[5] !== undefined ? row[5] : ""
-                    });
-                }
-            });
-
             listaMae = maeCargadas.length > 0 ? maeCargadas : [{ id: Date.now(), desc: "", sub: "", tipo: "", capex: "", opex: "" }];
+            listaAdjuntos = adjuntosCargados;
 
             renderTodo();
 
@@ -1272,10 +1490,28 @@
         const anio = document.getElementById("anioRegistro").value.trim() || "2026";
         const tituloOriginal = document.title;
 
+        // PREPARACIÓN FORZADA DE PESTAÑAS Y GRÁFICOS OCULTOS ANTES DE IMPRIMIR
+        capturarDatosMaeDOM();
+        prepararImpresionAdjuntos();
+
+        // Se muestran las pestañas momentáneamente para obligar a Chart.js a dibujar el diagrama de Pareto
+        const panes = document.querySelectorAll('.tab-pane');
+        panes.forEach(p => p.style.display = 'block');
+
+        if (paretoChartInstance) {
+            updateParetoChart();
+            paretoChartInstance.update();
+        }
+
         document.title = `Informe_Energia_${ed.replace(/\s+/g, '_')}_${anio}`;
-        window.print();
-        
-        setTimeout(() => { document.title = tituloOriginal; }, 1000);
+
+        setTimeout(() => {
+            window.print();
+            
+            // Se restaura el estado visual original de las pestañas en pantalla
+            panes.forEach(p => p.style.display = '');
+            document.title = tituloOriginal;
+        }, 100);
     }
 
     window.onload = function() {
