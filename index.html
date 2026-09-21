@@ -354,35 +354,33 @@
                 <h1>Calculadora de Gestión Energética</h1>
                 <p class="subtitle">Registros de consumo y evaluación MAE</p>
             </div>
-            
-            <!-- TU BOTÓN AQUÍ -->
-            <a href="https://forms.gle/Yiychcu8W2Lafo2r6" target="_blank" style="text-decoration: none; margin-left: auto;">
-  <button style="background-color: #4CAF50; color: white; padding: 6px 14px; font-size: 13px; border: none; border-radius: 5px; cursor: pointer; white-space: nowrap;">
-    Abrir Formulario
-  </button>
-</a>
         </div>
     </header>
         
-        <div class="header-controls">
-            <div class="btn-group">
-                <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;" onchange="cargarArchivo(event)">
-                <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">📂 Cargar</button>
-                <button class="btn btn-success" onclick="exportarExcel()">💾 Guardar</button>
-                <button class="btn" onclick="imprimirPDF()">🖨️ Imprimir</button>
-            </div>
+    <div class="header-controls">
+        <div class="btn-group">
+            <input type="file" id="fileInput" accept=".csv, .xlsx, .xls" style="display: none;" onchange="cargarArchivo(event)">
+            <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">📂 Cargar</button>
+            <button class="btn btn-success" onclick="exportarExcel()">💾 Guardar</button>
+            <button class="btn" onclick="imprimirPDF()">🖨️ Imprimir</button>
+            
+            <!-- BOTÓN DE FORMULARIO INTEGRADO AQUÍ ABAJO -->
+            <a href="https://forms.gle/Yiychcu8W2Lafo2r6" target="_blank" style="text-decoration: none;">
+                <button class="btn" style="background-color: #4CAF50; color: white;">📝 Formulario</button>
+            </a>
+        </div>
 
-            <div class="meta-inputs">
-                <div class="meta-field">
-                    <span>Archivo:</span>
-                    <input type="text" id="nombreEdificio" placeholder="Nombre Edificación / Muni." style="width: 170px;">
-                </div>
-                <div class="meta-field">
-                    <span>Año:</span>
-                    <input type="text" id="anioRegistro" placeholder="2026" style="width: 55px;">
-                </div>
+        <div class="meta-inputs">
+            <div class="meta-field">
+                <span>Archivo:</span>
+                <input type="text" id="nombreEdificio" placeholder="Nombre Edificación / Muni." style="width: 170px;">
+            </div>
+            <div class="meta-field">
+                <span>Año:</span>
+                <input type="text" id="anioRegistro" placeholder="2026" style="width: 55px;">
             </div>
         </div>
+    </div>
     </header>
 
     <div class="app-layout">
