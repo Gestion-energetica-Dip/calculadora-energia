@@ -53,7 +53,7 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .header-title-container { display: flex; align-items: center; gap: 10px; }
+        .header-title-container { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 250px; }
         .app-logo { width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
 
         h1 { margin: 0; font-size: 20px; color: var(--text-main); font-weight: 700; }
@@ -355,6 +355,11 @@
                 <p class="subtitle">Registros de consumo y evaluación MAE</p>
             </div>
         </div>
+
+        <!-- BOTÓN DE FORMULARIO INTEGRADO ARRIBA A LA DERECHA -->
+        <a href="https://forms.gle/Yiychcu8W2Lafo2r6" target="_blank" style="text-decoration: none;">
+            <button class="btn" style="background-color: #16a34a; color: white;">📝 Abrir Formulario</button>
+        </a>
     </header>
         
     <div class="header-controls">
@@ -363,11 +368,6 @@
             <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">📂 Cargar</button>
             <button class="btn btn-success" onclick="exportarExcel()">💾 Guardar</button>
             <button class="btn" onclick="imprimirPDF()">🖨️ Imprimir</button>
-            
-            <!-- BOTÓN DE FORMULARIO INTEGRADO AQUÍ ABAJO -->
-            <a href="https://forms.gle/Yiychcu8W2Lafo2r6" target="_blank" style="text-decoration: none;">
-                <button class="btn" style="background-color: #4CAF50; color: white;">📝 Formulario</button>
-            </a>
         </div>
 
         <div class="meta-inputs">
@@ -381,7 +381,6 @@
             </div>
         </div>
     </div>
-    </header>
 
     <div class="app-layout">
         <nav class="sidebar-menu">
@@ -1496,11 +1495,9 @@
         const anio = document.getElementById("anioRegistro").value.trim() || "2026";
         const tituloOriginal = document.title;
 
-        // PREPARACIÓN FORZADA DE PESTAÑAS Y GRÁFICOS OCULTOS ANTES DE IMPRIMIR
         capturarDatosMaeDOM();
         prepararImpresionAdjuntos();
 
-        // Se muestran las pestañas momentáneamente para obligar a Chart.js a dibujar el diagrama de Pareto
         const panes = document.querySelectorAll('.tab-pane');
         panes.forEach(p => p.style.display = 'block');
 
@@ -1514,7 +1511,6 @@
         setTimeout(() => {
             window.print();
             
-            // Se restaura el estado visual original de las pestañas en pantalla
             panes.forEach(p => p.style.display = '');
             document.title = tituloOriginal;
         }, 100);
